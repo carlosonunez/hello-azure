@@ -1,6 +1,7 @@
 # hello-azure
 
-Learn Azure through this dumb web app!
+Learn Azure through this dumb web app! I built this while trying to get my Azure certs (and so I can
+convince myself that Azure actually isn't that bad.)
 
 ## The app
 

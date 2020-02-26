@@ -1,0 +1,17 @@
+---
+version: '2.2'
+services:
+  local-azure:
+    image: mcr.microsoft.com/azure-storage/azurite
+  azcli:
+    image: mcr.microsoft.com/azure-cli
+  blobstore:
+    extends: local-azure
+    entrypoint: azurite-blob
+    ports:
+      - 10000:10000
+    command:
+      - --blobHost
+      - 0.0.0.0
+      - --blobPort
+      - 10000
