@@ -1,0 +1,10 @@
+.contino-header {
+  background: linear-gradient(90deg, rgba(32,34,99,1) 0%, rgba(242,2,68,1) 100%);
+  height: 50px;
+}
+
+.contino-logo-header {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+}
