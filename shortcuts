@@ -1,0 +1,1 @@
+alias az='docker-compose run --rm azcli'
