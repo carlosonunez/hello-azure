@@ -7,3 +7,7 @@ RUN pip install -r requirements.txt
 FROM base as app
 RUN mkdir /app
 COPY . /app
+
+USER nobody
+ENV FLASK_APP=hello_azure
+WORKDIR /app/hello_azure
