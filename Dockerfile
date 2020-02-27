@@ -2,6 +2,7 @@ FROM python:3.8-alpine as base
 MAINTAINER Carlos Nunez <cn@contino.io>
 
 COPY requirements.txt /
+RUN apk update && apk add postgresql-dev gcc musl-dev
 RUN pip install -r requirements.txt
 
 FROM base as app
