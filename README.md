@@ -11,3 +11,11 @@ button.
 ## `v0`: Nothin' but IaaS
 
 Deployment details coming soon.
+
+# Errata and troubleshooting
+
+## I want to mock S3 in my tests locally. How do I connect to Azurite Blob store?
+
+Use this connection string:
+
+`"DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://blobstore:10000/devstoreaccount1"`

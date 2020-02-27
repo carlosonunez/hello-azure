@@ -5,13 +5,18 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
   azcli:
     image: mcr.microsoft.com/azure-cli
+    entrypoint: az
+    environment:
+      - AZURE_CORE_OUTPUT=json
   blobstore:
     extends: local-azure
     entrypoint: azurite-blob
     ports:
       - 10000:10000
     command:
+      - -d
+      - debug.log
       - --blobHost
       - 0.0.0.0
       - --blobPort
-      - 10000
+      - "10000"
