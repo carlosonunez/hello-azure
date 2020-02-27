@@ -8,6 +8,9 @@ services:
     entrypoint: az
     environment:
       - AZURE_CORE_OUTPUT=json
+  python:
+    build:
+      context: .
   blobstore:
     extends: local-azure
     entrypoint: azurite-blob
@@ -20,3 +23,5 @@ services:
       - 0.0.0.0
       - --blobPort
       - "10000"
+  hello-azure:
+    extends: python
