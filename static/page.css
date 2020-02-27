@@ -1,3 +1,11 @@
+p {
+  color: #313639;
+}
+
+button {
+  border-radius: 2px;
+}
+
 .contino-header {
   background: linear-gradient(90deg, rgba(32,34,99,1) 0%, rgba(242,2,68,1) 100%);
   height: 50px;
@@ -8,3 +16,21 @@
   max-width: 100%;
   object-fit: contain;
 }
+
+.box {
+  padding: 0.25em;
+}
+
+.title {
+  font-size: 2em;
+  font-weight: bold;
+  color: #313639;
+}
+
+.centered {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
