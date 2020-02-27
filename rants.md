@@ -24,6 +24,12 @@
 - Output from `azcli [command] --help` is really nice (love the feedback link on the bottom)
 - Love that I can type `--help` and get what I expect (not a thing with `awscli`)
 
+# Flask
+
+- Sinatra feels so much easier to set up
+- Can't set host and port with env vars without _not_ using `flask run`. You have
+  to use `app.run` and then load it from Python directly wtih `python app.py`
+
 # #random
 
 - A bit of a shame that Microsoft created Azurite instead of the community
