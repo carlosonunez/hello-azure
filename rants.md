@@ -43,3 +43,12 @@
   with the first result being from an engineer's blog. I still think that
   "little information from community about software = software targets enterprises =
   it probably sucks since most CIO/CTO's don't know any better and it's too expensive to try"
+
+# Azure APIs
+
+- Apparently `azure_storage` only works with Python 3.5 max. That's nuts (in a bad way).
+- Yep, the documentation is wrong. `from azure.storage.blob import BlobServiceClient`
+  is outdated despite it being on the quickstart docs that is the top result on Google when
+  one searches for "azure storage api python".
+
+  See here for more: https://stackoverflow.com/questions/58768443/error-importing-blobserviceclient-from-azure-storage-blob

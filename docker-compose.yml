@@ -44,6 +44,9 @@ services:
       SESSION_DB_PASSWORD: supersecret # don't do it like this in prod!
       SESSION_DB_HOST: database
       SESSION_DB_PORT: "5432"
+      AZURE_STORAGE_ACCOUNT_NAME: devstoreaccount1
+      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw
+      AZURE_ENDPOINT: http://blobstore:10000/${AZURE_STORAGE_ACCOUNT_NAME}
     ports:
       - 80:5000
     entrypoint: python
