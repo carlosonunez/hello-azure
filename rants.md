@@ -23,6 +23,7 @@
 
 - Output from `azcli [command] --help` is really nice (love the feedback link on the bottom)
 - Love that I can type `--help` and get what I expect (not a thing with `awscli`)
+- `az storage blob copy start` and `az storage blob upload` are confusing
 
 # Flask
 
@@ -52,3 +53,13 @@
   one searches for "azure storage api python".
 
   See here for more: https://stackoverflow.com/questions/58768443/error-importing-blobserviceclient-from-azure-storage-blob
+- Observe this:
+
+  ```
+  hello-azure_1  |     account_url, secondary, credential = parse_connection_str(conn_str, credential, 'blob')
+hello-azure_1  |   File "/usr/local/lib/python3.8/site-packages/azure/storage/blob/_shared/base_client.py", line 373, in parse_connection_str
+hello-azure_1  |     raise ValueError("Connection string missing required connection details.")
+hello-azure_1  | ValueError: Connection string missing required connection details.
+  ```
+
+  What the fuck am I supposed to do with that?
