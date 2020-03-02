@@ -1,4 +1,4 @@
-import os, random, string
+import os, random, string, logging, json
 from azure.storage.blob import BlobServiceClient
 from flask import Flask, render_template, make_response, request
 from flask_sqlalchemy_session import flask_scoped_session
@@ -9,42 +9,38 @@ from sqlalchemy.ext.declarative import declarative_base
 class ImageStore():
     container_name = 'app_images'
     def __init__(self):
-        self.storage_account_name = self.env_get_or_fail('AZURE_STORAGE_ACCOUNT_NAME')
-        self.storage_account_key = self.env_get_or_fail('AZURE_STORAGE_ACCOUNT_KEY')
-        self.storage_endpoint = self.env_get_or_fail('AZURE_ENDPOINT') or None
+        self.storage_account_name = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME')
+        self.storage_account_key = os.environ.get('AZURE_STORAGE_ACCOUNT_KEY')
+        self.storage_endpoint = os.environ.get('AZURE_STORAGE_ENDPOINT') or None
         self.blob_client = self.create_blob_client()
 
+    def list_containers(self):
+        return [ container.name for container in self.blob_client.list_containers() ]
+
     def create_image_container(self):
-        return self.blob_client.create_container(self.container_name)
+        if self.container_name not in self.blob_client.list_containers():
+            return self.blob_client.create_container(self.container_name)
 
     def list_images(self):
-        container = self.blob_client.get_container(self.container_name)
-        [ blob.name for blob in container.list_blobs() ]
-   
-        env_vars = ['AZURE_STORAGE_ACCOUNT_NAME',
-                    'AZURE_STORAGE_ACCOUNT_KEY',
-                    'AZURE_ENDPOINT']
-        defined = [ var for var in env_vars if var in os.environ ]
-        undefined = list(set(env_vars) - set(defined))
-        return (not undefined, undefined)
-
-    def env_get_or_fail(self, key):
-        try:
-            os.environ.get(key)
-        except Exception:
-            raise Exception(f"Please define {key} in your environment.")
+        container = self.blob_client.get_container_client(self.container_name)
+        images = [ blob.name for blob in container.list_blobs() ]
+        hello_azure_app.logger.debug(f"Found these images: {images}")
+        return images
 
     def generate_azure_storage_connection_string(self):
-        return str.format("""DefaultEndpointsProtocol=http;
-                            AccountName={0};
-                            AccountKey={1};
-                            BlobEndpoint={2}""",
-                            os.environ.get('AZURE_ACCOUNT_NAME'),
-                            os.environ.get('AZURE_ACCOUNT_KEY'),
-                            os.environ.get('AZURE_ENDPOINT'))
+        conn_str = str.format(("DefaultEndpointsProtocol=http;"
+            "AccountName={0};"
+            "AccountKey={1};"
+            "BlobEndpoint={2}{0}"),
+            os.environ.get('AZURE_STORAGE_ACCOUNT_NAME'),
+            os.environ.get('AZURE_STORAGE_ACCOUNT_KEY'),
+            os.environ.get('AZURE_STORAGE_ENDPOINT'))
+        hello_azure_app.logger.debug(f"Connection string: {conn_str}")
+        return conn_str
 
     def create_blob_client(self):
-        BlobServiceClient.from_connection_string(self.generate_azure_storage_connection_string())
+        return BlobServiceClient.from_connection_string(
+                self.generate_azure_storage_connection_string())
 
 
 # TODO: These should be in classes.
@@ -72,28 +68,67 @@ def fetch_click_count(session, session_id):
     return 0 if user is None else user.click_count
 
 def generate_database_connection_string():
-    for var in ['USER', 'PASSWORD', 'HOST', 'PORT']:
-        env_var_to_find = f"SESSION_DB_{var}"
-        if not os.environ.get(env_var_to_find):
-            raise f"Please define {env_var_to_find}"
+    conn_str = str.format("postgres://{0}:{1}@{2}:{3}/sessions",
+            os.environ.get("SESSION_DB_USER"),
+            os.environ.get("SESSION_DB_PASSWORD"),
+            os.environ.get("SESSION_DB_HOST"),
+            os.environ.get("SESSION_DB_PORT"))
+    hello_azure_app.logger.debug(f"Connecting to {conn_str}")
+    return conn_str
 
-    return str.format("postgres://{0}:{1}@{2}:{3}/sessions",
-            os.environ.get('SESSION_DB_USER'),
-            os.environ.get('SESSION_DB_PASSWORD'),
-            os.environ.get('SESSION_DB_HOST'),
-            os.environ.get('SESSION_DB_PORT'))
+def dependencies_ready():
+    for dependency in [ 'blobstore', 'database' ]:
+        attempts = 0
+        while attempts < 30:
+            try:
+                socket.gethostbyname(dependency)
+                return True
+            except Exception:
+                hello_azure_app.logger.warn(f"Waiting for {dependency} to become ready")
+                time.sleep(1)
+                attempts = attempts + 1
+        return False
 
+def environment_configured():
+    environment_variables = [ 'SESSION_DB_USER',
+            'SESSION_DB_PASSWORD',
+            'SESSION_DB_HOST',
+            'SESSION_DB_PORT',
+            'AZURE_STORAGE_ENDPOINT',
+            'AZURE_STORAGE_ACCOUNT_KEY',
+            'AZURE_STORAGE_ACCOUNT_NAME' ]
+    missing = [ var for var in environment_variables if var not in os.environ ]
+    return ( missing == [], missing )
 
 hello_azure_app = Flask(__name__)
+# So getLevelName returns an int if it's a valid log level or a
+# string saying 'Level {name}' if it isn't. While I'm assuming that this
+# was done to support custom log levels, it is horribly unintutive.
+log_level = logging.getLevelName(os.environ.get('LOG_LEVEL') or 'INFO')
+if not type(log_level) is int:
+    raise f"Invalid log level: {log_level}"
+hello_azure_app.logger.setLevel(log_level)
+
 session_conn_string = generate_database_connection_string();
 db_engine = create_engine(session_conn_string)
 create_table_if_nonexistent(db_engine, 'click_data')
 session_factory = sessionmaker(bind=db_engine)
 session = flask_scoped_session(session_factory, hello_azure_app)
 
-@hello_azure_app.route('/image')
-def image():
-    return ImageStore().list_images() or 'No images found', 404
+env_configured, missing_env_vars = environment_configured()
+if not env_configured:
+    raise Exception(f"Environment missing these variables: {missing_env_vars}")
+
+# Normally I would use a circuit breaker pattern and have the page
+# display services that are unavailable. We'll save that for
+# `hello-distributed-computing` :)
+if not dependencies_ready:
+    raise Exception("One or more dependencies not ready.")
+
+@hello_azure_app.route('/random_image')
+def random_image():
+    images = ImageStore().list_images()
+    return images[random.randint(0,len(images))] or 'No images found', 404
 
 @hello_azure_app.route('/click', methods=['POST'])
 def click():
@@ -118,6 +153,7 @@ def index():
     response = make_response(render_template('index.html.j2'))
     response.set_cookie('session_id', generate_id(), max_age=120)
     return response
+
 
 hello_azure_app.run(host=os.environ.get('FLASK_HOST'),
                     port=os.environ.get('FLASK_PORT'))
