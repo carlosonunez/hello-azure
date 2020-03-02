@@ -8,6 +8,11 @@ convince myself that Azure actually isn't that bad.)
 A simple Flask app that gives you a cute picture and a counter of how many times you clicked the
 button.
 
+To run it:
+
+1. `source shortcuts`
+2. `webserver`
+
 ## `v1`: Nothin' but IaaS
 
 Deployment details coming soon.
