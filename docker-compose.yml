@@ -27,6 +27,7 @@ services:
     ports:
       - 10000:10000
     command:
+      - azurite-blob
       - -d
       - debug.log
       - --blobHost
@@ -36,6 +37,7 @@ services:
   hello-azure:
     depends_on:
       - database
+      - blobstore
     extends: python
     environment:
       FLASK_HOST: "0.0.0.0"
@@ -45,9 +47,60 @@ services:
       SESSION_DB_HOST: database
       SESSION_DB_PORT: "5432"
       AZURE_STORAGE_ACCOUNT_NAME: devstoreaccount1
-      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw
-      AZURE_ENDPOINT: http://blobstore:10000/${AZURE_STORAGE_ACCOUNT_NAME}
+      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZURE_STORAGE_ENDPOINT: http://blobstore:10000
     ports:
       - 80:5000
     entrypoint: python
     command: hello_azure.py
+  hello-azure-debug:
+    depends_on:
+      - database
+      - blobstore
+    extends: python
+    environment:
+      LOG_LEVEL: DEBUG
+      FLASK_HOST: "0.0.0.0"
+      FLASK_PORT: "5000"
+      SESSION_DB_USER: dbuser
+      SESSION_DB_PASSWORD: supersecret # don't do it like this in prod!
+      SESSION_DB_HOST: database
+      SESSION_DB_PORT: "5432"
+      AZURE_STORAGE_ACCOUNT_NAME: devstoreaccount1
+      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZURE_STORAGE_ENDPOINT: http://blobstore:10000
+    ports:
+      - 80:5000
+    entrypoint: python
+    command: hello_azure.py
+  init-database:
+    depends_on:
+      - database
+    extends: database
+    entrypoint: sh
+    environment:
+      SESSION_DB_USER: dbuser
+      SESSION_DB_PASSWORD: supersecret # don't do it like this in prod!
+      SESSION_DB_HOST: database
+      SESSION_DB_PORT: "5432"
+    volumes:
+      - $PWD:/app:ro,cached
+    working_dir: /app
+    command:
+      - -c
+      - scripts/load_database.sh
+  init-blobstore:
+    depends_on:
+      - blobstore
+    extends: azcli
+    entrypoint: sh
+    environment:
+      AZURE_STORAGE_ACCOUNT_NAME: devstoreaccount1
+      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZURE_STORAGE_ENDPOINT: http://blobstore:10000
+    volumes:
+      - $PWD:/app:ro,cached
+    working_dir: /app
+    command:
+      - -c
+      - scripts/load_blobstore.sh
