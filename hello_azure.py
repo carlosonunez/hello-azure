@@ -1,6 +1,6 @@
 import os, random, string, logging, json
 from azure.storage.blob import BlobServiceClient
-from flask import Flask, render_template, make_response, request
+from flask import Flask, render_template, make_response, request, Response
 from flask_sqlalchemy_session import flask_scoped_session
 from sqlalchemy import create_engine, Column, Integer, MetaData, Table, String
 from sqlalchemy.orm import sessionmaker
@@ -23,7 +23,7 @@ class ImageStore():
 
     def list_images(self):
         container = self.blob_client.get_container_client(self.container_name)
-        images = [ blob.name for blob in container.list_blobs() ]
+        images = [ f"/static/{blob.name}" for blob in container.list_blobs() ]
         hello_azure_app.logger.debug(f"Found these images: {images}")
         return images
 
@@ -31,7 +31,7 @@ class ImageStore():
         conn_str = str.format(("DefaultEndpointsProtocol=http;"
             "AccountName={0};"
             "AccountKey={1};"
-            "BlobEndpoint={2}{0}"),
+            "BlobEndpoint={2}/{0}"),
             os.environ.get('AZURE_STORAGE_ACCOUNT_NAME'),
             os.environ.get('AZURE_STORAGE_ACCOUNT_KEY'),
             os.environ.get('AZURE_STORAGE_ENDPOINT'))
@@ -128,7 +128,8 @@ if not dependencies_ready:
 @hello_azure_app.route('/random_image')
 def random_image():
     images = ImageStore().list_images()
-    return images[random.randint(0,len(images))] or 'No images found', 404
+    return Response(images[random.randint(0,len(images)-1)], 200) or \
+            Response('No images found', 404)
 
 @hello_azure_app.route('/click', methods=['POST'])
 def click():
