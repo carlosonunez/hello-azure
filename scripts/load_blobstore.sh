@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -ex
+set -e
 
 AZURE_STORAGE_ENDPOINT=${AZURE_STORAGE_ENDPOINT}
 export AZURE_STORAGE_ACCOUNT=${AZURE_STORAGE_ACCOUNT_NAME}
@@ -13,12 +13,17 @@ BlobEndpoint=${AZURE_STORAGE_ENDPOINT}/${AZURE_STORAGE_ACCOUNT}"
 if ! az storage container list --connection-string=$endpoint | \
   grep -q "app_images"
 then
+  >&2 echo "INFO: Creating app_images container"
   az storage container create --connection-string=$endpoint --name='app_images'
 fi
 
-for image in $(find $PWD/images/*)
+for image in $(find $PWD/static/*.png)
 do
   blob_name=$(basename "$image")
-  az storage blob upload --file "$image" --container 'app_images' \
-    --name "$blob_name" --connection-string=$endpoint
+  if [ "$blob_name" != "logo.png" ]
+  then
+    >&2 echo "INFO: Uploading '$image'"
+    az storage blob upload --file "$image" --container 'app_images' \
+      --name "$blob_name" --connection-string=$endpoint
+  fi
 done
