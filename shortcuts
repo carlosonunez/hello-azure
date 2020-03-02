@@ -1,1 +1,2 @@
 alias az='docker-compose run --rm azcli'
+alias webserver='scripts/start_web_server.sh'
