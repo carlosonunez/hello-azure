@@ -15,6 +15,21 @@
   Anyone just getting started should've run into this.
 - Literally FOUR results from Google when I search "Azure \"AZURITE_ACCOUNTS\"". INSANE.
 
+# Networking
+
+- Okay. So there are Network Security Groups (NSGs) and Application Security Groups (ASGs).
+  NSGs behave like AWS security groups, so that's easy to understand. But I can't restrict traffic
+  based on NSGs; I have to use ASGs for that.
+
+  So what are ASGs?
+
+  Turns out: this is a relatively new feature that provides "micro-segmentation" of a vNET
+  by allowing you to filter traffic based on ASGs that resources belong to.
+
+  https://azure.microsoft.com/en-us/blog/applicationsecuritygroups/
+
+  i.e. 2013 called; AWS wants its security groups back.
+
 # Testing
 
 - Azurite is Microsoft's equivalent of `localstack`
@@ -25,6 +40,16 @@
 - Love that I can type `--help` and get what I expect (not a thing with `awscli`)
 - `az storage blob copy start` and `az storage blob upload` are confusing
 - Deleting resource groups can take a while...
+
+# Terraform
+
+- So far, not bad. HashiCorp still has the non-AzureRM-based provider out there for some
+  reason which fucks with Google search results, but...
+
+- Please don't tell me that NSG names need to be globally-unique...
+  nope; just a derp.
+
+- TF is a lot faster than it was when I used it two years ago.
 
 # Azure Portal
 

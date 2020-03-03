@@ -15,26 +15,47 @@ resource "azurerm_virtual_network" "website" {
   resource_group_name = azurerm_resource_group.hello_azure.name
   location = azurerm_resource_group.hello_azure.location
   name = "hello-azure-vnet"
-  address_space = [ "10.1.0.0/24" ]
+  address_space = [ "10.1.0.0/16" ]
   subnet {
     name = "web_servers"
-    address_prefix = "10.1.1.0/25"
+    address_prefix = "10.1.1.0/24"
     security_group = azurerm_network_security_group.webservers_in.id
   }
   subnet {
     name = "db_servers"
-    address_prefix = "10.1.2.0/25"
+    address_prefix = "10.1.2.0/24"
     security_group = azurerm_network_security_group.database_in.id
   }
 }
 
-resource "azurerm_network_security_group" "common" {
+// These are needed so that we can map NSGs to VMs without having to use
+// CIDRs.
+resource "azurerm_application_security_group" "common" {
+  location = azurerm_resource_group.hello_azure.location
+  resource_group_name = azurerm_resource_group.hello_azure.name
+  name = "common"
+}
+
+resource "azurerm_application_security_group" "database" {
+  location = azurerm_resource_group.hello_azure.location
+  resource_group_name = azurerm_resource_group.hello_azure.name
+  name = "database"
+}
+
+resource "azurerm_application_security_group" "webservers" {
   location = azurerm_resource_group.hello_azure.location
   resource_group_name = azurerm_resource_group.hello_azure.name
   name = "webservers"
+}
+
+// And here are our security groups.
+resource "azurerm_network_security_group" "common" {
+  location = azurerm_resource_group.hello_azure.location
+  resource_group_name = azurerm_resource_group.hello_azure.name
+  name = "common"
 
   security_rule {
-    name      = "common"
+    name      = "common-allow-ssh"
     priority  = 100
     direction = "Inbound"
     access    = "Allow"
@@ -42,7 +63,7 @@ resource "azurerm_network_security_group" "common" {
     source_port_range = 22
     destination_port_range = 22
     source_address_prefix = "*"
-    destination_address_prefix = "*"
+    destination_application_security_group_ids = [ azurerm_application_security_group.common.id ]
   }
 }
 
@@ -52,14 +73,15 @@ resource "azurerm_network_security_group" "database_in" {
   name = "database"
 
   security_rule {
-    name      = "database-in"
+    name      = "database-ingress-from-webservers"
     priority  = 100
     direction = "Inbound"
     access    = "Allow"
     protocol  = "Tcp"
     source_port_range = 5432
     destination_port_range = 5432
-    source_application_security_group_ids = [ azurerm_network_security_group.webservers.id ]
+    source_application_security_group_ids = [ azurerm_application_security_group.webservers.id ]
+    destination_application_security_group_ids = [ azurerm_application_security_group.database.id ]
   }
 }
 
@@ -67,10 +89,10 @@ resource "azurerm_network_security_group" "database_in" {
 resource "azurerm_network_security_group" "webservers_in" {
   location = azurerm_resource_group.hello_azure.location
   resource_group_name = azurerm_resource_group.hello_azure.name
-  name = "database"
+  name = "webservers"
 
   security_rule {
-    name      = "web-in"
+    name      = "allow-internet-ingress"
     priority  = 100
     direction = "Inbound"
     access    = "Allow"
