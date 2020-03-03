@@ -8,6 +8,8 @@ services:
     entrypoint: az
     environment:
       - AZURE_CORE_OUTPUT=json
+    volumes:
+      - $HOME/.azure:/root/.azure
   python:
     build:
       context: .
@@ -21,6 +23,15 @@ services:
       POSTGRES_USER: dbuser
       POSTGRES_PASSWORD: supersecret
       POSTGRES_DB: sessions
+  terraform:
+    image: hashicorp/terraform
+    volumes:
+      - $PWD/infra:/infra:cached
+      - $PWD/scripts:/scripts:ro,cached
+    working_dir: /infra
+    env_file: infra/.env
+    entrypoint: sh
+    command: /scripts/execute_terraform.sh
   blobstore:
     extends: local-azure
     entrypoint: azurite-blob
