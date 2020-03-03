@@ -1,5 +1,4 @@
 #!sh
-set -x
 
 init_terraform() {
   terraform init -backend-config="resource_group_name=terraform" \
