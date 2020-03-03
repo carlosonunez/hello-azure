@@ -10,6 +10,11 @@ services:
       - AZURE_CORE_OUTPUT=json
     volumes:
       - $HOME/.azure:/root/.azure
+  gpg-infra:
+    image: vladgh/gpg
+    volumes:
+      - $PWD/infra:/app
+    working_dir: /app
   python:
     build:
       context: .
@@ -115,3 +120,20 @@ services:
     command:
       - -c
       - scripts/load_blobstore.sh
+  encrypt-env:
+    extends: gpg-infra
+    command:
+      - --batch
+      - --yes
+      - --passphrase=$ENV_PASSWORD
+      - --output=env.gpg
+      - --symmetric
+      - .env
+  decrypt-env:
+    extends: gpg-infra
+    command:
+      - '--decrypt'
+      - '--batch'
+      - "--passphrase=$ENV_PASSWORD"
+      - '--output=.env'
+      - env.gpg
