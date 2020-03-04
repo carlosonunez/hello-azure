@@ -1,3 +1,28 @@
+# General
+
+- The `ec2instances.info` equivalent for Azure is `azureprice.net`
+- Search query `"az monitor alert create" "Billing Total"` == 299 results. LOLOSAD
+  - Turns out: you can't create cost alerts in the CLI, at least not in a way
+    that makes sense to me.
+
+# Compute
+
+- Holy fuck; Azure is expensive compared to AWS!
+- Price compare:
+  - AWS t2.micro (1 vCPU, 1GB RAM, 8GB EBS, 2.25h burst = $0.011/hour in `us-east-2`)
+  - Azure `Standard_B1s` (1 vCPU, 1 GB RAM, 8GB EBS, 2.67 hours burst max) = $0.013/hour in `South Central US`)
+    - `Standard_B1s` comes with 30 credits with a 10% CPU baseline and a 100% max
+    - Credit redemption formula (per hour): `(($percent_baseline - $percent_usage)/100)*60 minutes`
+    - `((10-100)/100)*60 = 54 credits/hour`
+    - You receive 6 credits per hour up to a cap of 144 credits
+- why is picking the latest Ubuntu platform image so hard
+  - Fortunately you can specify that you want the latest version in Terraform
+    by setting `version` to "latest"
+- Availability Zones _still_ aren't offered in all Azure regions. Like, really?
+- You don't get public IPs for free like you do with AWS. You _have_ to allocate a public IP
+  address to the instance, which costs money ($0.002/hr). WACK AS FUCK.
+- It took NINE MINUTES to get a dynamic public IP allocated to me. THAT IS NUTS.
+
 # Storage
 
 - Azure Blob Storage is the equivalent of AWS S3.
@@ -50,6 +75,17 @@
   nope; just a derp.
 
 - TF is a lot faster than it was when I used it two years ago.
+
+- I have to create my own vNICs to bond to VMs. AWS, you've spoiled me.
+
+- ARE YOU MOTHER FUCKING KIDDING ME: https://github.com/terraform-providers/terraform-provider-azurerm/issues/5907#issuecomment-594231887
+  - Discovered that I can't change the name of an OS disk for an existing VM
+  - I thought that it was odd that this didn't trigger a new resource creation, so I went to
+    the provider's GitHub repo to log a bug
+  - Found an existing bug here: https://github.com/terraform-providers/terraform-provider-azurerm/issues/5907
+  - `azurerm_virtual_machine` feature frozen a week ago; no reason provided
+  - `azurerm_linux_virtual_machine` replaces it
+  - Okay; I'm less mad since this was documented at the top of the page.
 
 # Azure Portal
 
