@@ -18,18 +18,19 @@ services:
   python:
     build:
       context: .
-  ansible:
+  ansible-with-systemd:
     tty: true # colores!
+    privileged: true
     build:
       dockerfile: ansible.Dockerfile
       context: .
     environment:
       ANSIBLE_RETRY_FILES_ENABLED: 0
       ANSIBLE_STDOUT_CALLBACK: debug
-    entrypoint: ansible-playbook
     volumes:
       - $PWD:/app:ro,cached # Needed so that we don't have to copy the app into the container every time.
       - $PWD/infra:/workdir:ro,cached
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     working_dir: /workdir
   database:
     image: postgres:alpine
@@ -139,7 +140,5 @@ services:
       - "--passphrase=$ENV_PASSWORD"
       - '--output=.env'
       - env.gpg
-  ansible-test-webserver:
-    extends: ansible
-    command:
-      - webservers.yml
+  ansible-test-webservers:
+    extends: ansible-with-systemd

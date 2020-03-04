@@ -29,4 +29,4 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
 
 VOLUME [ "/sys/fs/cgroup" ]
 
-CMD ["/lib/systemd/systemd"]
+ENTRYPOINT [ "/sbin/init" ]

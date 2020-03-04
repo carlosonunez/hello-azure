@@ -1,2 +1,3 @@
 alias az='docker-compose run -T --rm azcli'
 alias webserver='scripts/start_web_server.sh'
+alias ansible_test=scripts/run_ansible_tests.sh
