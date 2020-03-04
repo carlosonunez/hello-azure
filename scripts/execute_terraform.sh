@@ -7,4 +7,15 @@ init_terraform() {
     -backend-config="key=tfstate"
 }
 
-init_terraform && terraform $*
+write_outputs() {
+  output_json=$(terraform output -json | jq -r '. | to_entries')
+  outputs=$(echo "$output_json" | jq -r '.[].key')
+  for output in "$outputs"
+  do
+    echo "$output_json" | jq --arg output "$output" \
+      '.[] | select(.key == $output) | .value.value' > "/secrets/${output}"
+  done
+}
+
+init_terraform && terraform $* && \
+  if [ "$1" == "apply" ]; then write_outputs $1; fi
