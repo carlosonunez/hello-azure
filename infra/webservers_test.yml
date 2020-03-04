@@ -1,0 +1,10 @@
+---
+port:
+  tcp:80:
+    listening: true
+    ip:
+      - 0.0.0.0
+service:
+  hello-azure:
+    enabled: true
+    running: true

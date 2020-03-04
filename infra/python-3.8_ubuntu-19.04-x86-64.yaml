@@ -1,0 +1,21 @@
+---
+description: "Provisions Python 3.8 and dependencies needed for running Flask."
+variables:
+  - arm_client_id: null
+  - arm_client_secret: null
+  - arm_subscription_id:  null
+  - arm_tenant_id: null
+  - resource_group_name: null
+  - azure_location_to_use_for_packer: South Central US
+builders:
+  - type: azure-arm
+    image_publisher: Canonical
+    image_offer: UbuntuServer
+    image_sku: 19.04
+    managed_image_name: python-3.8-flask_ubuntu-19.04_x86-64
+    managed_image_resource_group_name: {{ user `resource_group_name` }}
+    location: {{ user `azure_location_to_use_for_packer` }}
+    vm_size: Standard_B1s
+provisioners:
+  - type: "ansible"
+    playbook_file: "webservers.yml"

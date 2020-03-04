@@ -1,0 +1,10 @@
+[Unit]
+Description=The hello-azure example web app.
+
+[Service]
+Type=simple
+WorkingDirectory=/app
+ExecStart=python hello_azure.py
+
+[Install]
+WantedBy=multi-user.target

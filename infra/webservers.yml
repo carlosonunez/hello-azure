@@ -1,0 +1,71 @@
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Ensure that application has been copied first
+      stat:
+        path: /app
+      register: application_directory_info
+
+    - fail:
+        msg: "Ensure that the hello-azure application has been copied into this instance first."
+      when: not application_directory_info.stat.exists
+
+    - name: Install Python and Flask dependencies
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - python3.8
+        - libffi-dev
+        - libpq-dev
+        - gcc
+        - python3-dev
+
+    - name: Install pip
+      block:
+        - name: Download pip
+          get_url:
+            url: https://bootstrap.pypa.io/get-pip.py
+            dest: /tmp/get-pip.py
+
+        - name: Install pip
+          command: python3 /tmp/get-pip.py
+
+        - name: Delete pip installer
+          file:
+            path: /tmp/get-pip.py
+            state: absent
+
+    - name: Install application dependencies
+      pip:
+        executable: pip3
+        requirements: /app/requirements.txt
+
+    - name: Install hello-azure service
+      block:
+        - name: Copy the "hello-azure" systemd unit
+          copy:
+            src: files/hello_azure.service
+            dest: /lib/systemd/system/hello-azure.service
+
+        - name: Ensure that the service is started
+          systemd:
+            name: hello-azure
+            state: started
+            daemon_reload: yes
+
+    - name: Make goss tests directory
+      become: sudo
+      file:
+        path: /tests
+        state: present
+
+    - name: Copy goss test
+      copy:
+        src: webserver_test.yml
+        dest: /tests/webserver_test.yml
+
+    - name: Serve goss health endpoint
+      command: goss -g /tests/test.yml serve &

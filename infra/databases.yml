@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: Install Postgres
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - postgresql
+        - postgresql-contrib
+
+    - name: Create Postgres user
+      command: postgres -c "createuser {{ postgres_user }}"
+
+    - name: Create default Postgres database
+      command: postgres -c "createdb {{ hello_azure_sessions_database_name }}"
+
+    - name: Grant privileges to database
+      become: postgres
+      command: psql -c "grant all privileges on database {{ hello_azure_sessions_database_name }} to {{ postgres_user }}"
+
+    - name: Allow Postgres to listen to external connection requests
+      command: "echo \"listen_addresses = '*'\" >> /etc/postgresql/10/main/postgresql.conf"
+
+    - name: Restart postgres
+      service:
+        name: postgresql
+        state: restarted
