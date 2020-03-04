@@ -29,10 +29,13 @@ services:
       POSTGRES_PASSWORD: supersecret
       POSTGRES_DB: sessions
   terraform:
-    image: hashicorp/terraform
+    build:
+      dockerfile: terraform.Dockerfile
+      context: .
     volumes:
       - $PWD/infra:/infra:cached
       - $PWD/scripts:/scripts:ro,cached
+      - $PWD/secrets:/secrets:cached
     working_dir: /infra
     env_file: infra/.env
     environment:
