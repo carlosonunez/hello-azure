@@ -1,0 +1,13 @@
+---
+port:
+  tcp:5432:
+    listening: true
+    ip:
+      - 0.0.0.0
+command:
+  dbuser_exists:
+    exit-status: 0
+    exec: su - postgres -c "psql -c '\du'" | awk '{print $1}' | grep -q '{{getEnv "POSTGRES_USER"}}'
+  database_exists:
+    exit-status: 0
+    exec: su - postgres -c 'psql -lqt' | awk '{print $1}' | grep -q '{{getEnv "POSTGRES_DB"}}'

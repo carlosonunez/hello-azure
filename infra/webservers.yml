@@ -92,8 +92,8 @@
             dest: /tests/test.yml
 
         - name: Copy the goss systemd unit
-          copy:
-            src: files/goss.service
+          template:
+            src: goss.service.j2
             dest: /lib/systemd/system/goss.service
 
         - name: Ensure that goss service is started

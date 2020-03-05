@@ -5,6 +5,7 @@ Description=Server health endpoint.
 Type=simple
 WorkingDirectory=/tests
 ExecStart=goss -g test.yml serve -l 0.0.0.0:8080
+EnvironmentFile={{ env_file_location }}
 
 [Install]
 WantedBy=multi-user.target

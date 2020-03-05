@@ -11,20 +11,74 @@
         - postgresql
         - postgresql-contrib
 
-    - name: Create Postgres user
-      command: postgres -c "createuser {{ postgres_user }}"
+    - name: Install psycopg2
+      package:
+        name: python-psycopg2
+        state: present
 
-    - name: Create default Postgres database
-      command: postgres -c "createdb {{ hello_azure_sessions_database_name }}"
+    - name: Start Postgres
+      service:
+        name: postgresql
+        state: started
 
-    - name: Grant privileges to database
-      become: postgres
-      command: psql -c "grant all privileges on database {{ hello_azure_sessions_database_name }} to {{ postgres_user }}"
+    - name: Create the database for Hello Azure app
+      become: true
+      become_method: su
+      become_user: postgres
+      postgresql_db:
+        name: "{{ lookup('env', 'POSTGRES_DB') }}"
+
+    - name: Create the database user
+      become: true
+      become_method: su
+      become_user: postgres
+      postgresql_user:
+        db: "{{ lookup('env', 'POSTGRES_DB') }}"
+        name: "{{ lookup('env', 'POSTGRES_USER') }}"
+        password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
 
     - name: Allow Postgres to listen to external connection requests
-      command: "echo \"listen_addresses = '*'\" >> /etc/postgresql/10/main/postgresql.conf"
+      become: true
+      become_method: su
+      become_user: postgres
+      postgresql_set:
+        name: listen_addresses
+        value: "*"
 
     - name: Restart postgres
       service:
         name: postgresql
         state: restarted
+
+    - name: Install and run goss service
+      block:
+        - name: Download goss
+          get_url:
+            url: https://github.com/aelsabbahy/goss/releases/download/v0.3.10/goss-linux-amd64
+            dest: /usr/local/bin/goss
+            mode: 744
+
+        - name: Make goss tests directory
+          file:
+            path: /tests
+            state: directory
+
+        - name: Copy goss test
+          copy:
+            src: databases_test.yml
+            dest: /tests/test.yml
+
+        - name: Copy the goss systemd unit
+          template:
+            src: goss.service.j2
+            dest: /lib/systemd/system/goss.service
+
+        - name: Ensure that goss service is started
+          systemd:
+            name: goss
+            state: started
+            daemon_reload: yes
+
+    - name: Ensure that infrastructure tests are passing
+      uri:
+        url: http://localhost:8080/healthz

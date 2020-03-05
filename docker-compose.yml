@@ -126,3 +126,6 @@ services:
       - blobstore
     extends: ansible-with-systemd
     env_file: .env.test
+  ansible-test-databases:
+    extends: ansible-with-systemd
+    env_file: .env.test
