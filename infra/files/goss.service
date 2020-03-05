@@ -1,0 +1,11 @@
+[Unit]
+Description=Server health endpoint.
+
+[Service]
+Type=simple
+WorkingDirectory=/tests
+ExecStart=goss -g test.yml serve -l 0.0.0.0:8080
+
+[Install]
+WantedBy=multi-user.target
+

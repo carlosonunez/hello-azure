@@ -58,15 +58,25 @@ playbook_under_test_exists() {
 }
 
 setup() {
+  if [ "$SERVER_UNDER_TEST" == "webservers" ]
+  then
+    docker-compose up -d database blobstore && \
+    docker-compose run --service-ports --rm init-database && \
+    docker-compose run --service-ports --rm init-blobstore
+  fi
   docker-compose up -d "$SERVER_UNDER_TEST"
 }
 
 run_tests() {
   if [ "$DEBUG_MODE" == "true" ]
   then
-    docker-compose exec "$SERVER_UNDER_TEST" ansible-playbook -vvv "$PLAYBOOK_UNDER_TEST"
+    docker-compose exec "$SERVER_UNDER_TEST" ansible-playbook -vvv \
+      -e "env_file_location=/app/.env.test" \
+      "$PLAYBOOK_UNDER_TEST"
   else
-    docker-compose exec "$SERVER_UNDER_TEST" ansible-playbook "$PLAYBOOK_UNDER_TEST"
+    docker-compose exec "$SERVER_UNDER_TEST" ansible-playbook \
+      -e "env_file_location=/app/.env.test" \
+      "$PLAYBOOK_UNDER_TEST"
   fi
 }
 

@@ -3,6 +3,13 @@
   gather_facts: no
   connection: local
   tasks:
+    - name: Environment check
+      fail:
+        msg: "Please define the '{{ item }}' Ansible variable"
+      when: item is not defined
+      with_items:
+        - env_file_location
+
     - name: Ensure that application has been copied first
       stat:
         path: /app
@@ -11,6 +18,15 @@
     - fail:
         msg: "Ensure that the hello-azure application has been copied into this instance first."
       when: not application_directory_info.stat.exists
+
+    - name: Ensure that environment file is present
+      stat:
+        path: "{{ env_file_location }}"
+      register: environment_file_info
+
+    - fail:
+        msg: "This environment file is missing: {{ env_file_location }}"
+      when: not environment_file_info.stat.exists
 
     - name: Install Python and Flask dependencies
       package:
@@ -46,8 +62,8 @@
     - name: Install hello-azure service
       block:
         - name: Copy the "hello-azure" systemd unit
-          copy:
-            src: files/hello_azure.service
+          template:
+            src: hello_azure.service.j2
             dest: /lib/systemd/system/hello-azure.service
 
         - name: Ensure that the service is started
@@ -56,16 +72,36 @@
             state: started
             daemon_reload: yes
 
-    - name: Make goss tests directory
-      become: sudo
-      file:
-        path: /tests
-        state: present
+    - name: Install and run goss service
+      block:
+        - name: Download goss
+          get_url:
+            url: https://github.com/aelsabbahy/goss/releases/download/v0.3.10/goss-linux-amd64
+            dest: /usr/local/bin/goss
+            mode: 744
 
-    - name: Copy goss test
-      copy:
-        src: webserver_test.yml
-        dest: /tests/webserver_test.yml
+        - name: Make goss tests directory
+          become: sudo
+          file:
+            path: /tests
+            state: directory
 
-    - name: Serve goss health endpoint
-      command: goss -g /tests/test.yml serve &
+        - name: Copy goss test
+          copy:
+            src: webservers_test.yml
+            dest: /tests/test.yml
+
+        - name: Copy the goss systemd unit
+          copy:
+            src: files/goss.service
+            dest: /lib/systemd/system/goss.service
+
+        - name: Ensure that goss service is started
+          systemd:
+            name: goss
+            state: started
+            daemon_reload: yes
+
+    - name: Ensure that infrastructure tests are passing
+      uri:
+        url: http://localhost:8080/healthz

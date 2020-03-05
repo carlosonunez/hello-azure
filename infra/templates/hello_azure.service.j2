@@ -4,7 +4,8 @@ Description=The hello-azure example web app.
 [Service]
 Type=simple
 WorkingDirectory=/app
-ExecStart=python hello_azure.py
+ExecStart=python3 hello_azure.py
+EnvironmentFile={{ env_file_location }}
 
 [Install]
 WantedBy=multi-user.target
