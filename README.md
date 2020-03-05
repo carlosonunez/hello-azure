@@ -15,7 +15,16 @@ To run it:
 
 ## `v1`: Nothin' but IaaS
 
-Deployment details coming soon.
+### Ansible and Packer
+
+This repository uses Ansible and Packer to provision the Azure shared images used by our Azure VMs.
+
+You can test these Ansible playbooks locally within Docker by running `ansible_test [webservers|databases]`.
+The Ansible playbooks use the same version of Ubunut that is deployed into Azure.
+
+### Terraform
+
+Coming soon!
 
 # Errata and troubleshooting
 
