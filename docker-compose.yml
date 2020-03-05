@@ -34,14 +34,11 @@ services:
     working_dir: /workdir
   database:
     image: postgres:alpine
+    env_file: .env.test
     volumes:
       - $PWD/scripts/db_init:/docker-entrypoint-initdb.d
     ports:
       - 5432
-    environment:
-      POSTGRES_USER: dbuser
-      POSTGRES_PASSWORD: supersecret
-      POSTGRES_DB: sessions
   terraform:
     build:
       dockerfile: terraform.Dockerfile
@@ -77,17 +74,7 @@ services:
       - database
       - blobstore
     extends: python
-    environment:
-      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
-      FLASK_HOST: "0.0.0.0"
-      FLASK_PORT: "5000"
-      SESSION_DB_USER: dbuser
-      SESSION_DB_PASSWORD: supersecret # don't do it like this in prod!
-      SESSION_DB_HOST: database
-      SESSION_DB_PORT: "5432"
-      AZURE_STORAGE_ACCOUNT_NAME: devstoreaccount1
-      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
-      AZURE_STORAGE_ENDPOINT: http://blobstore:10000
+    env_file: .env.test
     ports:
       - 80:5000
     entrypoint: python
@@ -97,11 +84,7 @@ services:
       - database
     extends: database
     entrypoint: sh
-    environment:
-      SESSION_DB_USER: dbuser
-      SESSION_DB_PASSWORD: supersecret # don't do it like this in prod!
-      SESSION_DB_HOST: database
-      SESSION_DB_PORT: "5432"
+    env_file: .env.test
     volumes:
       - $PWD:/app:ro,cached
     working_dir: /app
@@ -113,17 +96,14 @@ services:
       - blobstore
     extends: azcli
     entrypoint: sh
-    environment:
-      AZURE_STORAGE_ACCOUNT_NAME: devstoreaccount1
-      AZURE_STORAGE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
-      AZURE_STORAGE_ENDPOINT: http://blobstore:10000
+    env_file: .env.test
     volumes:
       - $PWD:/app:ro,cached
     working_dir: /app
     command:
       - -c
       - scripts/load_blobstore.sh
-  encrypt-env:
+  encrypt-infra-env:
     extends: gpg-infra
     command:
       - --batch
@@ -132,7 +112,7 @@ services:
       - --output=env.gpg
       - --symmetric
       - .env
-  decrypt-env:
+  decrypt-infra-env:
     extends: gpg-infra
     command:
       - '--decrypt'
@@ -141,4 +121,8 @@ services:
       - '--output=.env'
       - env.gpg
   ansible-test-webservers:
+    depends_on:
+      - database
+      - blobstore
     extends: ansible-with-systemd
+    env_file: .env.test
