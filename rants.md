@@ -5,6 +5,30 @@
   - Turns out: you can't create cost alerts in the CLI, at least not in a way
     that makes sense to me.
 - This is confusing: https://github.com/terraform-providers/terraform-provider-azurerm/issues/6016
+- Here's an interesting story about why committing (and pushing) early and often is a really
+  good idea.
+
+  I was wrapping up some work on my deployment script. One of the steps I do during
+  the deployment is clone this repository onto my webserver before starting the
+  Flask app with systemd. I was running into some weird errors with this step; specifically,
+  I kept getting errors that the directory I was cloning into was "busy".
+
+  Trying to brute-force my way into a solution, I edited the Ansible playbook that deploys this app
+  to delete the folder I was cloning into before actually cloning it. Ansible runs in a Docker
+  container with my application volume-mounted to `/app`. On the webserver, my application is
+  deployed into `/app`.
+
+  This was all well and good, except for one thing: the plays within this playbook were copied from
+  another playbook I wrote earlier that is executed on the server itself (i.e. not over SSH).
+  `connection: local` is the directive that tells Ansible to do this.
+
+  I forgot to remove that line. Since the folder I'm deploying into on the webserver is called
+  `/app` and my app is mounted into `/app` in the Ansible container that runs my deployment
+  playbook, every time I ran this script, I would lose _my entire codebase_.
+
+  Because I forgot to push my work after committing it, I lost two hours of work that I had to redo.
+
+  Commit and push early and often, people!
 
 # Compute
 
