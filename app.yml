@@ -27,9 +27,15 @@
         msg: "This environment file is missing: {{ env_file_location }}"
       when: not environment_file_info.stat.exists
 
+      # TODO: move into infra
+    - name: install pip correctly
+      package:
+        name: python-pip
+        state: present
+
     - name: Install application dependencies
       pip:
-        executable: pip3
+        executable: pip
         requirements: /app/requirements.txt
 
     - name: Install hello-azure service

@@ -109,17 +109,18 @@ deploy_app() {
   docker-compose run -v $PWD:/app -w /app \
       --entrypoint ansible-playbook ansible-with-systemd \
       -i inventory \
+      -e "env_file_location=/.env" \
       -u "$(cat secrets/machine_user)" \
       --private-key secrets/common_private_key \
       app.yml
 }
 
-run create_images && \
-  run deploy_infrastructure && \
-  run verify_that_all_secrets_populated && \
-  run create_env_file && \
-  run copy_images_to_storage_container && \
-  run tighten_access_to_private_key && \
-  run build_ansible_inventory && \
+#run create_images && \
+#  run deploy_infrastructure && \
+#  run verify_that_all_secrets_populated && \
+#  run create_env_file && \
+#  run copy_images_to_storage_container && \
+#  run tighten_access_to_private_key && \
+#  run build_ansible_inventory && \
   run copy_env_file_to_servers && \
   run deploy_app
