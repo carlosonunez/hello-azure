@@ -21,22 +21,6 @@
         name: postgresql
         state: started
 
-    - name: Create the database for Hello Azure app
-      become: true
-      become_method: su
-      become_user: postgres
-      postgresql_db:
-        name: "{{ lookup('env', 'POSTGRES_DB') }}"
-
-    - name: Create the database user
-      become: true
-      become_method: su
-      become_user: postgres
-      postgresql_user:
-        db: "{{ lookup('env', 'POSTGRES_DB') }}"
-        name: "{{ lookup('env', 'POSTGRES_USER') }}"
-        password: "{{ lookup('env', 'POSTGRES_PASSWORD') }}"
-
     - name: Allow Postgres to listen to external connection requests
       become: true
       become_method: su
@@ -49,36 +33,3 @@
       service:
         name: postgresql
         state: restarted
-
-    - name: Install and run goss service
-      block:
-        - name: Download goss
-          get_url:
-            url: https://github.com/aelsabbahy/goss/releases/download/v0.3.10/goss-linux-amd64
-            dest: /usr/local/bin/goss
-            mode: 744
-
-        - name: Make goss tests directory
-          file:
-            path: /tests
-            state: directory
-
-        - name: Copy goss test
-          copy:
-            src: databases_test.yml
-            dest: /tests/test.yml
-
-        - name: Copy the goss systemd unit
-          template:
-            src: goss.service.j2
-            dest: /lib/systemd/system/goss.service
-
-        - name: Ensure that goss service is started
-          systemd:
-            name: goss
-            state: started
-            daemon_reload: yes
-
-    - name: Ensure that infrastructure tests are passing
-      uri:
-        url: http://localhost:8080/healthz

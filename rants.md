@@ -22,7 +22,8 @@
 - You don't get public IPs for free like you do with AWS. You _have_ to allocate a public IP
   address to the instance, which costs money ($0.002/hr). WACK AS FUCK.
 - It took NINE MINUTES to get a dynamic public IP allocated to me. THAT IS NUTS.
-
+  - Follow-on calls were faster over the same connection, which is weird.
+- Deleting/creating resource groups can take a while.
 # Storage
 
 - Azure Blob Storage is the equivalent of AWS S3.
@@ -39,6 +40,7 @@
 
   Anyone just getting started should've run into this.
 - Literally FOUR results from Google when I search "Azure \"AZURITE_ACCOUNTS\"". INSANE.
+- LOL the progress bar uses FOUR significant digits for progress. Someone at MSFT is very exact!
 
 # Networking
 

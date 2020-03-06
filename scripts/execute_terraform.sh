@@ -10,9 +10,9 @@ init_terraform() {
 write_outputs() {
   output_json=$(terraform output -json | jq -r '. | to_entries')
   outputs=$(echo "$output_json" | jq -r '.[].key')
-  for output in "$outputs"
+  for output in $outputs
   do
-    echo "$output_json" | jq --arg output "$output" \
+    echo "$output_json" | jq -r --arg output "$output" \
       '.[] | select(.key == $output) | .value.value' > "/secrets/${output}"
   done
 }

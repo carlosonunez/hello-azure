@@ -5,6 +5,7 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
   azcli:
     image: mcr.microsoft.com/azure-cli
+    env_file: .env
     entrypoint: az
     environment:
       - AZURE_CORE_OUTPUT=json
@@ -18,6 +19,15 @@ services:
   python:
     build:
       context: .
+  packer:
+    extends: ansible-with-systemd
+    volumes:
+      - $PWD/infra:/workdir:ro,cached
+      - $PWD/scripts:/scripts:ro,cached
+      - $PWD/secrets:/secrets:cached
+    working_dir: /workdir
+    env_file: infra/.env
+    entrypoint: sh /scripts/build_image_from_packer_template.sh
   ansible-with-systemd:
     tty: true # colores!
     privileged: true
@@ -27,6 +37,7 @@ services:
     environment:
       ANSIBLE_RETRY_FILES_ENABLED: 0
       ANSIBLE_STDOUT_CALLBACK: debug
+      ANSIBLE_HOST_KEY_CHECKING: "false"
     volumes:
       - $PWD:/app:ro,cached # Needed so that we don't have to copy the app into the container every time.
       - $PWD/infra:/workdir:ro,cached
@@ -50,7 +61,7 @@ services:
     working_dir: /infra
     env_file: infra/.env
     environment:
-      - TF_CLI_ARGS_plan="-auto-apply"
+      - TF_CLI_ARGS_apply="-auto-approve"
       - TF_CLI_ARGS_destroy="-force"
     entrypoint:
       - sh

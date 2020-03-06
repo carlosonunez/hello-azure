@@ -27,6 +27,13 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
     /lib/systemd/system/plymouth* \
     /lib/systemd/system/systemd-update-utmp*
 
+# Install Packer
+
+RUN apt-get update && apt-get -y install curl unzip python3-pip jq && \
+    curl -Lo /tmp/packer.zip https://releases.hashicorp.com/packer/1.5.4/packer_1.5.4_linux_amd64.zip && \
+    unzip /tmp/packer.zip -d /usr/local/bin && \
+    pip3 install yq
+
 VOLUME [ "/sys/fs/cgroup" ]
 
 ENTRYPOINT [ "/sbin/init" ]
