@@ -110,7 +110,7 @@ deploy_app() {
       --entrypoint ansible-playbook ansible-with-systemd \
       -i inventory \
       -u "$(cat secrets/machine_user)" \
-      --private-key "$(cat secrets/common_private_key)" \
+      --private-key secrets/common_private_key \
       app.yml
 }
 

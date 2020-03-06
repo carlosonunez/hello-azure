@@ -2,7 +2,6 @@
 - hosts: webservers
   become: true
   gather_facts: no
-  connection: local
   tasks:
     - name: Install git
       package:
@@ -66,7 +65,6 @@
 
 - hosts: databases
   gather_facts: no
-  connection: local
   tasks:
     - name: Create the database for Hello Azure app
       become: true
