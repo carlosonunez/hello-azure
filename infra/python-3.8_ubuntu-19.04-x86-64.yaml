@@ -1,21 +1,27 @@
 ---
 description: "Provisions Python 3.8 and dependencies needed for running Flask."
 variables:
-  - arm_client_id: null
-  - arm_client_secret: null
-  - arm_subscription_id:  null
-  - arm_tenant_id: null
-  - resource_group_name: null
-  - azure_location_to_use_for_packer: South Central US
+  azure_location: "{{ env `ARM_DEFAULT_LOCATION` }}"
+  subscription_id: "{{ env `ARM_SUBSCRIPTION_ID` }}"
+  client_id: "{{ env `ARM_CLIENT_ID` }}"
+  client_secret: "{{ env `ARM_CLIENT_SECRET` }}"
+  packer_resource_group: "{{ env `PACKER_RESOURCE_GROUP` }}"
+  image_name: "{{ env `IMAGE_TO_BUILD` }}"
 builders:
   - type: azure-arm
+    subscription_id: "{{ user `subscription_id` }}"
+    client_id: "{{ user `client_id` }}"
+    client_secret: "{{ user `client_secret` }}"
     image_publisher: Canonical
     image_offer: UbuntuServer
     image_sku: 19.04
-    managed_image_name: python-3.8-flask_ubuntu-19.04_x86-64
-    managed_image_resource_group_name: {{ user `resource_group_name` }}
-    location: {{ user `azure_location_to_use_for_packer` }}
+    managed_image_name: "python-3.8-flask_ubuntu-19.04_x86-64-{{ user `image_name` }}"
+    managed_image_resource_group_name: "{{ user `packer_resource_group` }}"
+    location:  "{{ user `azure_location` }}"
     vm_size: Standard_B1s
+    os_type: linux
+    azure_tags:
+      image_type: "{{ user `image_name` }}"
 provisioners:
   - type: "ansible"
-    playbook_file: "webservers.yml"
+    playbook_file: "{{ user `image_name` }}.yml"
