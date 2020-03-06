@@ -184,12 +184,12 @@ resource "azurerm_network_interface" "database" {
 }
 
 data "azurerm_image" "webserver" {
-  name = ".*-webservers$"
+  name_regex = ".*-webserver$"
   resource_group_name = azurerm_resource_group.packer.name
 }
 
 data "azurerm_image" "database" {
-  name = ".*-databases$"
+  name_regex = ".*-database$"
   resource_group_name = azurerm_resource_group.packer.name
 }
 

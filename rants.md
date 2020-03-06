@@ -4,6 +4,7 @@
 - Search query `"az monitor alert create" "Billing Total"` == 299 results. LOLOSAD
   - Turns out: you can't create cost alerts in the CLI, at least not in a way
     that makes sense to me.
+- This is confusing: https://github.com/terraform-providers/terraform-provider-azurerm/issues/6016
 
 # Compute
 
