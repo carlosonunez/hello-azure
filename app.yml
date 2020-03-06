@@ -58,6 +58,11 @@
             state: started
             daemon_reload: yes
 
+    - name: Copy infrastructure test
+      copy:
+        src: tests/webservers_test.yml
+        dest: /tests/test.yml
+
 
 - hosts: databases
   gather_facts: no
@@ -81,7 +86,7 @@
 
     - name: Copy infrastructure test
       copy:
-        src: databases_test.yml
+        src: tests/databases_test.yml
         dest: /tests/test.yml
 
 - hosts: all
