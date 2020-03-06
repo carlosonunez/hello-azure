@@ -15,3 +15,5 @@
 - Make Ansible testing instructions clearer
 - In `infra/infra.tf`: `source_image_id` should ask for specific version of Python and Ubuntu
   through interpolation.
+- Use gomplate to reduce `builder` DRY.
+- Ensure packer template is valid before deploying infrastructure

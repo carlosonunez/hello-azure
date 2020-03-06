@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
+set -e
+SKIP_IMAGES="${SKIP_IMAGES:-false}"
+create_images() {
+  if [ "$SKIP_IMAGES" == "false" ]
+  then
+    scripts/run_packer.sh python-3.8_ubuntu-19.04-x86-64.yaml
+  fi
+}
+
 deploy_infrastructure() {
   docker-compose run --rm terraform apply
 }

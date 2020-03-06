@@ -9,13 +9,29 @@ variables:
   image_name: "{{ env `IMAGE_TO_BUILD` }}"
 builders:
   - type: azure-arm
+    name: webserver
     subscription_id: "{{ user `subscription_id` }}"
     client_id: "{{ user `client_id` }}"
     client_secret: "{{ user `client_secret` }}"
     image_publisher: Canonical
     image_offer: UbuntuServer
     image_sku: 19.04
-    managed_image_name: "python-3.8-flask_ubuntu-19.04_x86-64-{{ user `image_name` }}"
+    managed_image_name: "python-3.8-flask_ubuntu-19.04_x86-64-webserver"
+    managed_image_resource_group_name: "{{ user `packer_resource_group` }}"
+    location:  "{{ user `azure_location` }}"
+    vm_size: Standard_B1s
+    os_type: linux
+    azure_tags:
+      image_type: "{{ user `image_name` }}"
+  - type: azure-arm
+    name: database
+    subscription_id: "{{ user `subscription_id` }}"
+    client_id: "{{ user `client_id` }}"
+    client_secret: "{{ user `client_secret` }}"
+    image_publisher: Canonical
+    image_offer: UbuntuServer
+    image_sku: 19.04
+    managed_image_name: "python-3.8-flask_ubuntu-19.04_x86-64-database"
     managed_image_resource_group_name: "{{ user `packer_resource_group` }}"
     location:  "{{ user `azure_location` }}"
     vm_size: Standard_B1s
@@ -24,4 +40,10 @@ builders:
       image_type: "{{ user `image_name` }}"
 provisioners:
   - type: "ansible"
-    playbook_file: "{{ user `image_name` }}.yml"
+    playbook_file: "webservers.yml"
+    only:
+      - webserver
+  - type: "ansible"
+    playbook_file: "databases.yml"
+    only:
+      - database
