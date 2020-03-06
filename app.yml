@@ -4,22 +4,23 @@
   gather_facts: no
   connection: local
   tasks:
-    - name: Environment check
-      fail:
-        msg: "Please define the '{{ item }}' Ansible variable"
-      when: item is not defined
-      with_items:
-        - env_file_location
-
     - name: Install git
       package:
         name: git
         state: present
 
+    - name: Delete /app directory, if it exists
+      become: true
+      become_method: su
+      file:
+        path: /app
+        state: absent
+
     - name: Fetch app from GitHub
       git:
         repo: https://github.com/contino/hello-azure
         dest: /app
+        force: yes
 
     - name: Ensure that application has been copied first
       stat:

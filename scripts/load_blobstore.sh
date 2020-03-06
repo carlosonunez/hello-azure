@@ -17,7 +17,7 @@ then
   az storage container create --connection-string=$endpoint --name='app-images'
 fi
 
-for image in $(find $PWD/static/*.png)
+for image in $(find $PWD/hello_azure/static/*.png)
 do
   blob_name=$(basename "$image")
   if [ "$blob_name" != "logo.png" ]
