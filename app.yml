@@ -11,6 +11,11 @@
       with_items:
         - env_file_location
 
+    - name: Install git
+      package:
+        name: git
+        state: present
+
     - name: Fetch app from GitHub
       git:
         repo: https://github.com/contino/hello-azure
