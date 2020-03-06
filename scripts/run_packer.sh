@@ -7,4 +7,4 @@ then
 fi
 docker-compose run -e PACKER_RESOURCE_GROUP=$(cat secrets/packer_resource_group) \
   -e IMAGE_TO_BUILD=$IMAGE_TO_BUILD \
-  --rm packer "$PACKER_TEMPLATE" && \
+  --rm packer "$PACKER_TEMPLATE"
