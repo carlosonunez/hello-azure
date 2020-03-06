@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 class ImageStore():
-    container_name = 'app_images'
+    container_name = 'app-images'
     def __init__(self):
         self.storage_account_name = os.environ.get('AZURE_STORAGE_ACCOUNT_NAME')
         self.storage_account_key = os.environ.get('AZURE_STORAGE_ACCOUNT_KEY')

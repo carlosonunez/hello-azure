@@ -11,10 +11,10 @@ AccountKey=${AZURE_STORAGE_ACCOUNT_KEY};\
 BlobEndpoint=${AZURE_STORAGE_ENDPOINT}/${AZURE_STORAGE_ACCOUNT}"
 
 if ! az storage container list --connection-string=$endpoint | \
-  grep -q "app_images"
+  grep -q "app-images"
 then
-  >&2 echo "INFO: Creating app_images container"
-  az storage container create --connection-string=$endpoint --name='app_images'
+  >&2 echo "INFO: Creating app-images container"
+  az storage container create --connection-string=$endpoint --name='app-images'
 fi
 
 for image in $(find $PWD/static/*.png)
@@ -23,7 +23,7 @@ do
   if [ "$blob_name" != "logo.png" ]
   then
     >&2 echo "INFO: Uploading '$image'"
-    az storage blob upload --file "$image" --container 'app_images' \
+    az storage blob upload --file "$image" --container 'app-images' \
       --name "$blob_name" --connection-string=$endpoint
   fi
 done
