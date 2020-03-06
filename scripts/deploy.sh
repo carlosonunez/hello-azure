@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 SKIP_IMAGES="${SKIP_IMAGES:-false}"
+
+run() {
+  echo "INFO: --- Running $@ ---"
+  $@
+}
+
 create_images() {
   if [ "$SKIP_IMAGES" == "false" ]
   then
@@ -108,12 +114,12 @@ deploy_app() {
       app.yml
 }
 
-create_images && \
-  deploy_infrastructure && \
-  verify_that_all_secrets_populated && \
-  create_env_file
-  copy_images_to_storage_container &&\
-  tighten_access_to_private_key && \
-  build_ansible_inventory && \
-  copy_env_file_to_servers && \
-  deploy_app
+run create_images && \
+  run deploy_infrastructure && \
+  run verify_that_all_secrets_populated && \
+  run create_env_file && \
+  run copy_images_to_storage_container && \
+  run tighten_access_to_private_key && \
+  run build_ansible_inventory && \
+  run copy_env_file_to_servers && \
+  run deploy_app
