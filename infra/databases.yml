@@ -2,6 +2,8 @@
 - hosts: localhost
   gather_facts: no
   connection: local
+  become: true
+  become_method: su
   tasks:
     - name: Install Postgres
       package:
