@@ -5,7 +5,6 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
   azcli:
     image: mcr.microsoft.com/azure-cli
-    env_file: .env
     entrypoint: az
     environment:
       - AZURE_CORE_OUTPUT=json
@@ -14,8 +13,8 @@ services:
   gpg-infra:
     image: vladgh/gpg
     volumes:
-      - $PWD/infra:/app
-    working_dir: /app
+      - $PWD/infra:/workdir
+    working_dir: /workdir
   python:
     build:
       context: .
@@ -126,10 +125,11 @@ services:
   decrypt-infra-env:
     extends: gpg-infra
     command:
-      - '--decrypt'
-      - '--batch'
-      - "--passphrase=$ENV_PASSWORD"
-      - '--output=.env'
+      - --decrypt
+      - --batch
+      - --yes
+      - --passphrase=$ENV_PASSWORD
+      - --output=.env
       - env.gpg
   ansible-test-webservers:
     depends_on:
