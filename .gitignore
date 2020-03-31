@@ -2,3 +2,6 @@
 .terraform/
 secrets/
 inventory
+redis/
+monitoring/plugins
+monitoring/png
