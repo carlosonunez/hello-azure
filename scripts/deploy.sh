@@ -115,12 +115,12 @@ deploy_app() {
       app.yml
 }
 
-#run create_images && \
-#  run deploy_infrastructure && \
-#  run verify_that_all_secrets_populated && \
-#  run create_env_file && \
-#  run copy_images_to_storage_container && \
-#  run tighten_access_to_private_key && \
-#  run build_ansible_inventory && \
+run create_images && \
+  run deploy_infrastructure && \
+  run verify_that_all_secrets_populated && \
+  run create_env_file && \
+  run copy_images_to_storage_container && \
+  run tighten_access_to_private_key && \
+  run build_ansible_inventory && \
   run copy_env_file_to_servers && \
   run deploy_app
