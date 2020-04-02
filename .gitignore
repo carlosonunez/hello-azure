@@ -5,3 +5,4 @@ inventory
 redis/
 monitoring/plugins
 monitoring/png
+monitoring/grafana.db
