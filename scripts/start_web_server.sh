@@ -41,7 +41,7 @@ Run 'docker-compose logs $service' for more information."
 }
 
 wait_for_persistence() {
-  max_seconds_to_wait=60
+  max_seconds_to_wait=5
   seconds_elapsed=0
   while true
   do
@@ -60,7 +60,7 @@ wait_for_persistence() {
 }
 
 wait_for_monitoring() {
-  max_seconds_to_wait=60
+  max_seconds_to_wait=5
   seconds_elapsed=0
   while true
   do

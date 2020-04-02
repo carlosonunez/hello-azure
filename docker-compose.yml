@@ -31,11 +31,7 @@ services:
     entrypoint: sh /scripts/build_image_from_packer_template.sh
   prom_database:
     image: postgres:alpine
-    env_file: .env.test
-    environment:
-      POSTGRES_DB: "$$PROM_DB"
-      POSTGRES_USER: "$$PROM_DB_USER"
-      POSTGRES_PASSWORD: "$$PROM_DB_PASSWORD"
+    env_file: ./monitoring/prometheus/.env.test
     ports:
       - 5432
   prometheus:
@@ -43,7 +39,7 @@ services:
       - prom_database
     image: prom/prometheus
     volumes:
-      - $PWD/monitoring:/etc/prometheus
+      - $PWD/monitoring/prometheus:/etc/prometheus
     ports:
       - 9090:9090
   prom_persistence_check:
@@ -62,16 +58,12 @@ services:
     depends_on:
       - graf_database
       - graf_cache
-    env_file: .env.test
-    environment:
-      - GF_AUTH_GOOGLE_CLIENT_ID
-      - GF_AUTH_GOOGLE_CLIENT_SECRET
-      - GF_SECURITY_ADMIN_USER=$$GF_SECURITY_ADMIN_USER
-      - GF_SECURITY_ADMIN_PASSWORD=$$GF_SECURITY_ADMIN_PASSWORD
-      - GF_SECURITY_ADMIN_SECRET_KEY=$$GF_SECURITY_ADMIN_SECRET_KEY
+    env_file: ./monitoring/grafana/.env.test
     image: grafana/grafana
     volumes:
-      - $PWD/monitoring:/var/lib/grafana
+      - $PWD/monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - $PWD/monitoring/certs:/certs
+      - $PWD/monitoring/grafana/provisioning:/provisioning
     ports:
       - 3000:3000
   graf_cache:
@@ -82,11 +74,7 @@ services:
       - 6379
   graf_database:
     image: postgres:alpine
-    env_file: .env.test
-    environment:
-      POSTGRES_DB: "$$GRAFANA_DB"
-      POSTGRES_USER: "$$GRAFANA_DB_USER"
-      POSTGRES_PASSWORD: "$$GRAFANA_DB_PASSWORD"
+    env_file: ./monitoring/grafana/.env.test
     ports:
       - 5432
   graf_persistence_check:

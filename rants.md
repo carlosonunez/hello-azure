@@ -1,3 +1,9 @@
+# Grafana
+
+- I like how easy it is to set up, especially wrt SSL and external OAuth
+  (I was able to get Google OAuth working in two commits)
+- So many 404s in their documentation around provisioning. This is janky.
+
 # General
 
 - The `ec2instances.info` equivalent for Azure is `azureprice.net`
