@@ -3,6 +3,8 @@
 - I like how easy it is to set up, especially wrt SSL and external OAuth
   (I was able to get Google OAuth working in two commits)
 - So many 404s in their documentation around provisioning. This is janky.
+- Okay, documentation about `role_attribute_path` for mapping OAuth users to roles
+  is completely missing but is an actual feature. Documentation is definitely janky.
 
 # General
 

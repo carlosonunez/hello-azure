@@ -10,3 +10,9 @@ scrape_configs:
     honor_labels: true
     static_configs:
       - targets: ['prometheus:9090']
+  - job_name: hello-azure
+    scrape_interval: 5s
+    scrape_timeout: 2s
+    honor_labels: true
+    static_configs:
+      - targets: ['hello-azure:5000']

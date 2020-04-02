@@ -3,4 +3,6 @@ apiVersion: 1
 datasources:
   - name: prometheus
     type: prometheus
+    access: server
     url: http://prometheus:9090
+    is_default: true

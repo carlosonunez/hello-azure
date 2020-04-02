@@ -3,3 +3,5 @@ sqlalchemy
 Flask-SQLAlchemy-Session
 psycopg2
 azure-storage-blob
+pylint
+prometheus-flask-exporter

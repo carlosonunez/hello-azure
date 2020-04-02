@@ -20,6 +20,7 @@ services:
       context: .
     volumes:
       - $PWD/hello_azure:/app
+      - $PWD/VERSION:/VERSION
   packer:
     extends: ansible-with-systemd
     volumes:
@@ -63,7 +64,7 @@ services:
     volumes:
       - $PWD/monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
       - $PWD/monitoring/certs:/certs
-      - $PWD/monitoring/grafana/provisioning:/provisioning
+      - $PWD/monitoring/grafana/provisioning:/etc/grafana/provisioning
     ports:
       - 3000:3000
   graf_cache:
@@ -210,3 +211,10 @@ services:
   ansible-test-databases:
     extends: ansible-with-systemd
     env_file: .env.test
+  lint:
+    extends: python
+    entrypoint: pylint
+    volumes:
+      - "$PWD:/app:cached"
+    command:
+      - -E
