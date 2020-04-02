@@ -18,6 +18,8 @@ services:
   python:
     build:
       context: .
+    volumes:
+      - $PWD/hello_azure:/app
   packer:
     extends: ansible-with-systemd
     volumes:
@@ -36,12 +38,6 @@ services:
       POSTGRES_PASSWORD: "$$PROM_DB_PASSWORD"
     ports:
       - 5432
-  prom_network_check:
-    image: alpine
-    entrypoint: sh
-    command:
-      - -c
-      - "nc -z prom_database 5432"
   prometheus:
     depends_on:
       - prom_database
@@ -50,6 +46,34 @@ services:
       - $PWD/monitoring:/etc/prometheus
     ports:
       - 9090:9090
+  prom_persistence_check:
+    image: alpine
+    entrypoint: sh
+    command:
+      - -c
+      - "nc -z prom_database 5432"
+  prom_monitoring_check:
+    image: alpine
+    entrypoint: sh
+    command:
+      - -c
+      - "nc -z prometheus 9090"
+  grafana:
+    depends_on:
+      - graf_database
+      - graf_cache
+    env_file: .env.test
+    environment:
+      - GF_AUTH_GOOGLE_CLIENT_ID
+      - GF_AUTH_GOOGLE_CLIENT_SECRET
+      - GF_SECURITY_ADMIN_USER=$$GF_SECURITY_ADMIN_USER
+      - GF_SECURITY_ADMIN_PASSWORD=$$GF_SECURITY_ADMIN_PASSWORD
+      - GF_SECURITY_ADMIN_SECRET_KEY=$$GF_SECURITY_ADMIN_SECRET_KEY
+    image: grafana/grafana
+    volumes:
+      - $PWD/monitoring:/var/lib/grafana
+    ports:
+      - 3000:3000
   graf_cache:
     image: redis:alpine
     volumes:
@@ -65,31 +89,18 @@ services:
       POSTGRES_PASSWORD: "$$GRAFANA_DB_PASSWORD"
     ports:
       - 5432
-  graf_network_check:
-    depends_on:
-      - graf_database
-      - graf_cache
+  graf_persistence_check:
     image: alpine
     entrypoint: sh
     command:
       - -c
       - "nc -z graf_database 5432 && nc -z graf_cache 6379"
-  grafana:
-    env_file: .env.test
-    environment:
-      - GF_AUTH_GOOGLE_CLIENT_ID
-      - GF_AUTH_GOOGLE_CLIENT_SECRET
-      - GF_SECURITY_ADMIN_USER=$$GF_SECURITY_ADMIN_USER
-      - GF_SECURITY_ADMIN_PASSWORD=$$GF_SECURITY_ADMIN_PASSWORD
-      - GF_SECURITY_ADMIN_SECRET_KEY=$$GF_SECURITY_ADMIN_SECRET_KEY
-    depends_on:
-      - graf_database
-      - graf_cache
-    image: grafana/grafana
-    volumes:
-      - $PWD/monitoring:/var/lib/grafana
-    ports:
-      - 3000:3000
+  graf_monitoring_check:
+    image: alpine
+    entrypoint: sh
+    command:
+      - -c
+      - "nc -z grafana 3000"
   ansible-with-systemd:
     tty: true # colores!
     privileged: true
@@ -105,13 +116,6 @@ services:
       - $PWD/infra:/workdir:ro,cached
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     working_dir: /workdir
-  database:
-    image: postgres:alpine
-    env_file: .env.test
-    volumes:
-      - $PWD/scripts/db_init:/docker-entrypoint-initdb.d
-    ports:
-      - 5432
   terraform:
     build:
       dockerfile: terraform.Dockerfile
@@ -141,7 +145,14 @@ services:
       - 0.0.0.0
       - --blobPort
       - "10000"
-  app_network_check:
+  database:
+    image: postgres:alpine
+    env_file: .env.test
+    volumes:
+      - $PWD/scripts/db_init:/docker-entrypoint-initdb.d
+    ports:
+      - 5432
+  app_persistence_check:
     image: alpine
     entrypoint: sh
     command:

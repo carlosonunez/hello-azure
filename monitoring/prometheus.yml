@@ -1,0 +1,12 @@
+---
+global:
+  external_labels:
+    project: hello-azure
+    cloud_provider: azure
+scrape_configs:
+  - job_name: prometheus
+    scrape_interval: 5s
+    scrape_timeout: 2s
+    honor_labels: true
+    static_configs:
+      - targets: ['prometheus:9090']
