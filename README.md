@@ -11,7 +11,7 @@ button.
 To run it:
 
 1. `source shortcuts`
-2. `webserver`
+2. `webserver`. The page will be at `https://localhost`.
 
 ## `v1`: Nothin' but IaaS
 
