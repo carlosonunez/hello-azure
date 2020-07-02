@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#vim: set ft=sh:
+DEFAULT_VAGRANT_CWD="$(git rev-parse --show-toplevel)/infra/k3s"
+export VAGRANT_CWD="${VAGRANT_CWD:-$DEFAULT_VAGRANT_CWD}"
+
+usage() {
+ cat <<-USAGE
+$(basename $0)
+Deploys a k3s cluster.
+
+ENVIRONMENT VARIABLES
+
+  VAGRANT_CWD           Sets the directory in which the Vagrantfile for
+                        our k3s cluster lives. [default: $DEFAULT_VAGRANT_CWD]
+
+NOTES
+
+  - To destroy a cluster, use scripts/destroy_k3s.
+USAGE
+}
+
+ensure_vagrant_is_present_and_working() {
+  ! test -z "$(vagrant --version)"
+}
+ensure_vbox_is_present() {
+  ! test -z "$(vboxmanage --version)"
+}
+provision_nodes() {
+  vagrant up
+}
+
+if [ "$1" == '--help' ] || [ "$1" == '-h' ]
+then
+  usage
+  exit 0
+fi
+
+if ! ensure_vagrant_is_present_and_working || ! ensure_vbox_is_present
+then
+  >&2 echo "ERROR: Virtualbox and Vagrant must be installed and working to continue."
+  exit 1
+fi
+
+provision_nodes

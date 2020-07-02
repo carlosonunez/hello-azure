@@ -19,8 +19,12 @@ I needed to learn Kubernetes quick so I did this ahead of provisioning IaaS comp
 
 ### k3s
 
-We are using k3s locally. To deploy onto it, run `ENVIRONMENT=local deploy`.
-This will create a single-node k3s Kubernetes cluster. **Don't use this for production!**
+**NOTE**: You will need Vagrant and Virtualbox for this to work.
+
+We are using k3s locally. To provision the cluster, run `scripts/provision_k3s`.
+
+This will create a three-node virtualized k3s Kubernetes cluster on your local machine.
+**Don't use this for production!**
 
 ## `v1`: Nothin' but IaaS
 

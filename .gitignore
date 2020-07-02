@@ -6,3 +6,4 @@ redis/
 monitoring/plugins
 monitoring/png
 monitoring/grafana.db
+.k3s/
