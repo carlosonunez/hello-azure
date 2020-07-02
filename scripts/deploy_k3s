@@ -49,6 +49,17 @@ provision_nodes() {
     vagrant up
   fi
 }
+configure_nodes() {
+  docker-compose run --volume="$VAGRANT_CWD:/work" \
+    --rm \
+    ansible-local \
+      ansible-playbook \
+      --extra-vars "k3s_token=$(shasum $VAGRANT_CWD/ssh_key | cut -f1 -d ' ' | head -c 8)" \
+      --inventory="/work/inventory"  \
+      --private-key="/work/ssh_key" \
+      --user=vagrant \
+      "/work/site.yml"
+}
 
 if [ "$1" == '--help' ] || [ "$1" == '-h' ]
 then
@@ -62,4 +73,4 @@ then
   exit 1
 fi
 
-generate_ssh_keypair && provision_nodes
+generate_ssh_keypair && provision_nodes && configure_nodes

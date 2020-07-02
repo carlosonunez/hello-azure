@@ -1,0 +1,30 @@
+---
+- hosts: master
+  gather_facts: no
+  tasks:
+    - name: Get this host's IP address
+      shell: "echo $(ip -4 -o addr show enp0s8 | awk '{print $4}' | cut -f1 -d '/')"
+      register: result
+
+    - set_fact:
+        ip_address: "{{ result.stdout }}"
+
+    - name: Install Rancher k3s
+      shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=enp0s8" K3S_TOKEN={{ k3s_token }} sh -
+
+- hosts: worker
+  tasks:
+    - name: Get this host's IP address
+      shell: "echo $(ip -4 -o addr show enp0s8 | awk '{print $4}' | cut -f1 -d '/')"
+      register: result
+
+    - set_fact:
+        ip_address: "{{ result.stdout }}"
+
+    - name: Wait for master to become available
+      wait_for:
+        host: 192.168.50.2
+        port: 6443
+
+    - name: Install k3s as worker
+      shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=enp0s8" K3S_URL=https://192.168.50.2:6443 K3S_TOKEN={{ k3s_token }} sh -

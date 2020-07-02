@@ -1,6 +1,6 @@
 # vim: set ft=ruby:
 num_nodes = ENV["K3S_NUMBER_OF_NODES"] || 3
-memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 2048
+memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 1024
 ssh_pub_key = File.read("#{ENV['VAGRANT_CWD']}/ssh_key.pub").gsub("\n","")
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
@@ -10,9 +10,11 @@ Vagrant.configure("2") do |config|
 
   num_nodes.times do |node_id|
     config.vm.define "k3s-node-#{node_id}" do |node|
+      node.vm.hostname  = "k3s-node-#{node_id}"
       node.vm.network "private_network", ip: "192.168.50.#{node_id+2}"
+      node.vm.network "forwarded_port", guest: 6443, host: 6443 if node_id == 0
       node.vm.provision "shell",
-        inline: "echo '#{ssh_pub_key}' >> ~/.ssh/authorized_keys"
+        inline: "echo '#{ssh_pub_key}' >> /home/vagrant/.ssh/authorized_keys"
       node.vm.provision "shell", inline: <<-COMMAND
       if ! {
         sudo apt --yes update;

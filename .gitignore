@@ -11,3 +11,4 @@ monitoring/grafana.db
 *.log
 infra/k3s/ssh_key
 infra/k3s/ssh_key.pub
+*.retry

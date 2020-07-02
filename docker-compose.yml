@@ -218,3 +218,9 @@ services:
       - "$PWD:/app:cached"
     command:
       - -E
+  ansible-local:
+    image: williamyeh/ansible:alpine3
+    environment:
+      ANSIBLE_HOST_KEY_CHECKING: "false"
+    network_mode: host
+    
