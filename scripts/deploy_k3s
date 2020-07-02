@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 #vim: set ft=sh:
-DEFAULT_VAGRANT_CWD="$(git rev-parse --show-toplevel)/infra/k3s"
+TOPLEVEL=$(git rev-parse --show-toplevel)
+DEFAULT_REPROVISION=false
+DEFAULT_VAGRANT_CWD="$TOPLEVEL/infra/k3s"
 export VAGRANT_CWD="${VAGRANT_CWD:-$DEFAULT_VAGRANT_CWD}"
+export REPROVISION="${REPROVISION:-$DEFAULT_REPROVISION}"
 
 usage() {
  cat <<-USAGE
@@ -13,9 +16,15 @@ ENVIRONMENT VARIABLES
   VAGRANT_CWD           Sets the directory in which the Vagrantfile for
                         our k3s cluster lives. [default: $DEFAULT_VAGRANT_CWD]
 
+  REPROVISION           Re-provisions existing machines. Useful for testing
+                        changed Ansible playbooks. [default: $DEFAULT_REPROVISION]
+
 NOTES
 
   - To destroy a cluster, use scripts/destroy_k3s.
+  - If you want to interact with these nodes (via SSH, SCP, or similar),
+    use \`k3s_vagrant\` instead of Vagrant. You can get this alias by running
+    \`source shortcuts\`.
 USAGE
 }
 
@@ -25,8 +34,20 @@ ensure_vagrant_is_present_and_working() {
 ensure_vbox_is_present() {
   ! test -z "$(vboxmanage --version)"
 }
+generate_ssh_keypair() {
+  ssh_key=$VAGRANT_CWD/ssh_key
+  if ! test -f "$ssh_key"
+  then
+    ssh-keygen -t rsa -f "$ssh_key" -q -N ""
+  fi
+}
 provision_nodes() {
-  vagrant up
+  if [ "$(echo $REPROVISION | tr '[:upper:]' '[:lower:]')" != "false" ]
+  then
+    vagrant up --provision
+  else
+    vagrant up
+  fi
 }
 
 if [ "$1" == '--help' ] || [ "$1" == '-h' ]
@@ -41,4 +62,4 @@ then
   exit 1
 fi
 
-provision_nodes
+generate_ssh_keypair && provision_nodes

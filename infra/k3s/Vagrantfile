@@ -1,0 +1,31 @@
+# vim: set ft=ruby:
+num_nodes = ENV["K3S_NUMBER_OF_NODES"] || 3
+memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 2048
+ssh_pub_key = File.read("#{ENV['VAGRANT_CWD']}/ssh_key.pub").gsub("\n","")
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize [ "modifyvm", :id, "--memory", memory_per_node ]
+  end
+
+  num_nodes.times do |node_id|
+    config.vm.define "k3s-node-#{node_id}" do |node|
+      node.vm.network "private_network", ip: "192.168.50.#{node_id+2}"
+      node.vm.provision "shell",
+        inline: "echo '#{ssh_pub_key}' >> ~/.ssh/authorized_keys"
+      node.vm.provision "shell", inline: <<-COMMAND
+      if ! {
+        sudo apt --yes update;
+        sudo apt --yes install software-properties-common;
+        sudo apt-add-repository --yes --update ppa:ansible/ansible;
+        sudo apt --yes install ansible;
+        &>/dev/null which ansible;
+      }
+      then
+        echo "ERROR: Failed to install Ansible on this machine."
+        exit 1
+      fi
+      COMMAND
+    end
+  end
+end

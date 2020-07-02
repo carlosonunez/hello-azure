@@ -7,3 +7,7 @@ monitoring/plugins
 monitoring/png
 monitoring/grafana.db
 .k3s/
+.vagrant/
+*.log
+infra/k3s/ssh_key
+infra/k3s/ssh_key.pub
