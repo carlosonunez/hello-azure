@@ -13,6 +13,15 @@ To run it:
 1. `source shortcuts`
 2. `webserver`. The page will be at `https://localhost`.
 
+## `v1a`: Kubernetes
+
+I needed to learn Kubernetes quick so I did this ahead of provisioning IaaS compute for this app.
+
+### k3s
+
+We are using k3s locally. To deploy onto it, run `ENVIRONMENT=local deploy`.
+This will create a single-node k3s Kubernetes cluster. **Don't use this for production!**
+
 ## `v1`: Nothin' but IaaS
 
 ### Ansible and Packer
