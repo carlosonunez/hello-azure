@@ -6,12 +6,12 @@ button {
   border-radius: 2px;
 }
 
-.contino-header {
-  background: linear-gradient(90deg, rgba(32,34,99,1) 0%, rgba(242,2,68,1) 100%);
+.header {
+  background: rgba(0,0,0,0);
   height: 50px;
 }
 
-.contino-logo-header {
+.logo-header {
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
