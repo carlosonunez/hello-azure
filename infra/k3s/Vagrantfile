@@ -1,6 +1,6 @@
 # vim: set ft=ruby:
 num_nodes = ENV["K3S_NUMBER_OF_NODES"] || 3
-memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 1024
+memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 512
 ssh_pub_key = File.read("#{ENV['VAGRANT_CWD']}/ssh_key.pub").gsub("\n","")
 install_ansible_command = <<-COMMAND
   if ! {
@@ -19,7 +19,7 @@ COMMAND
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.vm.provider "virtualbox" do |vb|
-    vb.customize [ "modifyvm", :id, "--memory", memory_per_node ]
+    vb.customize [ "modifyvm", :id, "--memory", 1024 ]
   end
 
   config.vm.define "k3s-registry" do |node|
