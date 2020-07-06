@@ -39,7 +39,7 @@ generate_ssh_keypair() {
   ssh_key=$VAGRANT_CWD/ssh_key
   if ! test -f "$ssh_key"
   then
-    ssh-keygen -t rsa -f "$ssh_key" -q -N ""
+    ssh-keygen -t rsa -f "$ssh_key" -q -N "" && chmod 600 "$ssh_key"
   fi
 }
 provision_nodes() {
