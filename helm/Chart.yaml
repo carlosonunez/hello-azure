@@ -1,0 +1,9 @@
+apiVersion: v1
+name: hello-azure
+home: https://github.com/carlosonunez/hello-azure
+version: 0.0.1
+appVersion: 0.0.1
+description: A simple app for learning more about Azure.
+maintainers:
+  - name: Carlos Nunez
+    email: dev@carlosnunez.me
