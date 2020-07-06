@@ -17,7 +17,8 @@ spec:
         app: {{ .Chart.Name }}
     spec:
       containers:
-        image: {{ .Chart.Name }}
-        imagePullPolicy: Never
-        ports:
-          - containerPort: 5000
+        - name: {{ .Chart.Name }}-webserver
+          image: {{ .Chart.Name }}
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
