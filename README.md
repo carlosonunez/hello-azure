@@ -21,10 +21,12 @@ I needed to learn Kubernetes quick so I did this ahead of provisioning IaaS comp
 
 **NOTE**: You will need Vagrant and Virtualbox for this to work.
 
-We are using k3s locally. To provision the cluster, run `scripts/provision_k3s`.
+We are using k3s locally. To provision the cluster, `source shortcuts` then run `create_k3s`.
 
 This will create a three-node virtualized k3s Kubernetes cluster on your local machine.
 **Don't use this for production!**
+
+You can destroy the cluster by running `destroy_k3s`.
 
 ## `v1`: Nothin' but IaaS
 
