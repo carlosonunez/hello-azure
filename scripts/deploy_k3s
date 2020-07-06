@@ -80,8 +80,7 @@ check_for_kubectl_and_helm() {
 }
 
 provide_kubectl_instructions() {
-  echo "INFO: Use 'kubectl --kubeconfig=$PATH_TO_TEMP_KUBECONFIG' to access your \
-new k3s cluster."
+  echo "INFO: Use 'k3skubectl' and 'k3shelm' to access your new k3s cluster."
 }
 
 if [ "$1" == '--help' ] || [ "$1" == '-h' ]
