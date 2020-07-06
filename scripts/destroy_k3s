@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #vim: set ft=sh:
 TOPLEVEL=$(git rev-parse --show-toplevel)
+PATH_TO_TEMP_KUBECONFIG="/tmp/k3s-kubeconfig"
 DEFAULT_VAGRANT_CWD="$(git rev-parse --show-toplevel)/infra/k3s"
 export VAGRANT_CWD="${VAGRANT_CWD:-$DEFAULT_VAGRANT_CWD}"
 
@@ -33,6 +34,9 @@ destroy_ssh_key() {
   ssh_key="$VAGRANT_CWD/ssh_key"
   rm -r "$ssh_key"
 }
+remove_temp_kubeconfig() {
+  rm -f "$PATH_TO_TEMP_KUBECONFIG"
+}
 
 if [ "$1" == '--help' ] || [ "$1" == '-h' ]
 then
@@ -46,5 +50,4 @@ then
   exit 1
 fi
 
-destroy_nodes && destroy_ssh_key
-
+destroy_nodes && destroy_ssh_key && remove_temp_kubeconfig
