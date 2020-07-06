@@ -30,6 +30,7 @@
       shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=enp0s8" K3S_URL=https://192.168.50.2:6443 K3S_TOKEN={{ k3s_token }} sh -
 
 - hosts: registry
+  become: true
   tasks:
     - name: Install Docker prereqs
       apt:
@@ -44,7 +45,7 @@
       shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
 
     - name: Add Docker repository
-      apt-repository:
+      apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu/dists/xenial/stable"
 
     - name: Install Docker
