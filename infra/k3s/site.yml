@@ -28,3 +28,34 @@
 
     - name: Install k3s as worker
       shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=enp0s8" K3S_URL=https://192.168.50.2:6443 K3S_TOKEN={{ k3s_token }} sh -
+
+- hosts: registry
+  tasks:
+    - name: Install Docker prereqs
+      apt:
+        package:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+    
+    - name: Add Docker GPG key
+      shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -"
+
+    - name: Add Docker repository
+      apt-repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu/dists/xenial/stable"
+
+    - name: Install Docker
+      apt:
+        package: docker
+        upgrade: yes
+      
+    - name: Start Docker Registry
+      docker_container:
+        name: registry
+        image: registry:2
+        restart_policy: always
+        ports:
+          - "5000:5000"
