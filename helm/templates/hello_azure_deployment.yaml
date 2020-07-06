@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: {{ template "hello_azure.name" }}
+  labels:
+    app: {{ template "hello_azure.name" }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ template ".Values.app.replicaCount" }}
+  selector:
+    matchLabels:
+      app: {{ template "hello_azure.name" }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "hello_azure.name" }}
+    spec:
+      containers:
+        image: {{ template "hello_azure.name" }}
+        imagePullPolicy: "Never"
+        ports:
+          - containerPort: 5000
