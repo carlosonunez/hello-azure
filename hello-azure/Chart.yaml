@@ -1,0 +1,8 @@
+apiVersion: v2
+name: hello-azure
+description: A simple website I wrote to learn about Azure.
+
+type: application
+
+version: 0.1.0
+appVersion: 0.0.1
