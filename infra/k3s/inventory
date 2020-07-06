@@ -1,0 +1,8 @@
+# These IP addresses are statically allocated.
+# See scripts/deploy_k3s for more info.
+[master]
+192.168.50.2
+
+[worker]
+192.168.50.3
+192.168.50.4
