@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "hello_azure.name" }}
+  name: {{ .Chart.Name }}
   labels:
-    app: {{ template "hello_azure.name" }}
+    app: {{ .Chart.Name }}
 spec:
+  selector:
+    app: {{ .Chart.Name }}
   ports:
     - port: 80
       protocol: TCP
-    selector:
-      app: {{ template "hello_azure.name" }}

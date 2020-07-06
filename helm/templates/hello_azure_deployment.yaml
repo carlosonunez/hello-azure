@@ -1,23 +1,23 @@
 ---
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "hello_azure.name" }}
+  name: {{ .Chart.Name }}
   labels:
-    app: {{ template "hello_azure.name" }}
+    app: {{ .Chart.Name }}
     release: {{ .Release.Name }}
 spec:
-  replicas: {{ template ".Values.app.replicaCount" }}
+  replicas: {{ .Values.app.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "hello_azure.name" }}
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
-        app: {{ template "hello_azure.name" }}
+        app: {{ .Chart.Name }}
     spec:
       containers:
-        image: {{ template "hello_azure.name" }}
-        imagePullPolicy: "Never"
+        image: {{ .Chart.Name }}
+        imagePullPolicy: Never
         ports:
           - containerPort: 5000
