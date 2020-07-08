@@ -1,6 +1,6 @@
 # vim: set ft=ruby:
-num_nodes = ENV["K3S_NUMBER_OF_NODES"] || 3
-memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 512
+num_nodes = ENV["K3S_NUMBER_OF_NODES"] || 2
+memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 1024
 ssh_pub_key = File.read("#{ENV['VAGRANT_CWD']}/ssh_key.pub").gsub("\n","")
 install_ansible_command = <<-COMMAND
   if ! apk add python3 ansible
