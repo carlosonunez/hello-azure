@@ -10,6 +10,37 @@
     - set_fact:
         ip_address: "{{ result.stdout }}"
 
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /etc/rancher/k3s
+        - /etc/docker
+
+    - name: Create registry files
+      file:
+        path: "{{ item }}"
+        state: touch
+      with_items:
+        - /etc/rancher/k3s/registries.yaml
+        - /etc/docker/daemon.json
+
+    - name: Configure insecure registries for k3s
+      blockinfile:
+        path: /etc/rancher/k3s/registries.yaml
+        block: |
+          mirrors:
+            docker.io:
+              endpoint:
+                - "http://10.0.2.2:5000"
+
+    - name: Configure insecure regsitries for containerd
+      blockinfile:
+        path: /etc/docker/daemon.json
+        block: |
+          { "insecure-registries": [ "10.0.2.2:5000" ] }
+
     - name: Install Rancher k3s
       shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=eth1" K3S_TOKEN={{ k3s_token }} sh -
 
@@ -48,6 +79,39 @@
         host: 192.168.50.2
         port: 6443
 
+
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - /etc/rancher/k3s
+        - /etc/docker
+
+    - name: Create registry files
+      file:
+        path: "{{ item }}"
+        state: touch
+      with_items:
+        - /etc/rancher/k3s/registries.yaml
+        - /etc/docker/daemon.json
+
+    - name: Configure insecure registries for k3s
+      blockinfile:
+        path: /etc/rancher/k3s/registries.yaml
+        block: |
+          mirrors:
+            docker.io:
+              endpoint:
+                - "http://10.0.2.2:5000"
+
+    - name: Configure insecure regsitries for containerd
+      blockinfile:
+        path: /etc/docker/daemon.json
+        block: |
+          { "insecure-registries": [ "10.0.2.2:5000" ] }
+
+
     - name: Install k3s as worker
       shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=eth1" K3S_URL=https://192.168.50.2:6443 K3S_TOKEN={{ k3s_token }} sh -
 
@@ -75,6 +139,14 @@
 - hosts: registry
   become: true
   tasks:
+    - name: Get this host's IP address
+      shell: "echo $(ip -4 -o addr show eth1 | awk '{print $4}' | cut -f1 -d '/')"
+      register: result
+
+    - set_fact:
+        ip_address: "{{ result.stdout }}"
+
+
     - name: Install Docker
       apk:
         name:
@@ -86,11 +158,17 @@
     - name: Start docker daemon
       shell: "service docker start"
 
+    - name: Reboot
+      shell: /sbin/reboot
+
+    - name: "Wait for machine"
+      local_action: wait_for host={{ ip_address }} port=22
+
     - name: Check for instances of registry
-      shell: "test '$(sudo docker ps | grep registry)' == ''"
+      shell: "sudo docker ps | grep -q registry"
       register: result
       ignore_errors: true
 
     - name: Start Docker Registry
       shell: "sudo docker run -d --restart=always -p 5000:5000 --name registry registry:2"
-      when: result.rc == 0
+      when: result.rc != 0
