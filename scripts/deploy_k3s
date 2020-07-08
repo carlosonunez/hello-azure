@@ -63,13 +63,15 @@ configure_nodes() {
 }
 
 fetch_kubeconfig_for_master() {
-  command="vagrant ssh k3s-node-0 -c 'sudo cat /etc/rancher/k3s/k3s.yaml > $PATH_TO_TEMP_KUBECONFIG'"
+  set -x
+  command="vagrant ssh k3s-node-0 -c 'sudo cat /etc/rancher/k3s/k3s.yaml' > $PATH_TO_TEMP_KUBECONFIG"
   if ! eval "$command"
   then
     >&2 echo "ERROR: Failed to write kubeconfig locally. Try running it manually: \
 $command"
     exit 1
   fi
+  set +x
 }
 
 check_for_kubectl_and_helm() {
