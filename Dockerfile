@@ -1,5 +1,5 @@
 FROM python:3.8-alpine as base
-MAINTAINER Carlos Nunez <cn@contino.io>
+MAINTAINER Carlos Nunez <dev@carlosnunez.me>
 
 COPY requirements.txt /
 RUN apk update && apk add postgresql-dev gcc musl-dev libffi-dev
