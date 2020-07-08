@@ -3,7 +3,8 @@ num_nodes = ENV["K3S_NUMBER_OF_NODES"] || 2
 memory_per_node = ENV["K3S_NODE_MEMORY_GB"] || 1024
 ssh_pub_key = File.read("#{ENV['VAGRANT_CWD']}/ssh_key.pub").gsub("\n","")
 install_ansible_command = <<-COMMAND
-  if ! apk add python3 ansible
+  apk update
+  if ! apk add ansible
   then
     echo "ERROR: Failed to install Ansible on this machine."
     exit 1
@@ -11,7 +12,7 @@ install_ansible_command = <<-COMMAND
 COMMAND
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "alpine/alpine64"
+  config.vm.box = "maier/alpine-3.6-x86_64"
   config.vm.provider "virtualbox" do |vb|
     vb.customize [ "modifyvm", :id, "--memory", memory_per_node ]
   end
