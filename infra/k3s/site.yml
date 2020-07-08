@@ -87,10 +87,10 @@
       shell: "service docker start"
 
     - name: Check for instances of registry
-      shell: "test '$(docker ps | grep registry)' == ''"
+      shell: "test '$(sudo docker ps | grep registry)' == ''"
       register: result
       ignore_errors: true
 
     - name: Start Docker Registry
-      shell: "docker run -d --restart=always -p 5000:5000 --name registry registry:2"
+      shell: "sudo docker run -d --restart=always -p 5000:5000 --name registry registry:2"
       when: result.rc == 0
