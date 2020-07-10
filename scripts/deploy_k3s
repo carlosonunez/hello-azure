@@ -53,6 +53,7 @@ provision_nodes() {
 configure_nodes() {
   docker-compose run --volume="$VAGRANT_CWD:/work" \
     --rm \
+    -e ANSIBLE_SSH_RETRIES=5 \
     ansible-local \
       ansible-playbook \
       --extra-vars "k3s_token=$(shasum $VAGRANT_CWD/ssh_key | cut -f1 -d ' ' | head -c 8)" \
@@ -97,6 +98,10 @@ then
   exit 1
 fi
 
-generate_ssh_keypair && provision_nodes && configure_nodes &&
+if ! (generate_ssh_keypair && provision_nodes && configure_nodes &&
   fetch_kubeconfig_for_master && check_for_kubectl_and_helm &&
-  provide_kubectl_instructions
+  provide_kubectl_instructions)
+then
+  >&2 echo "ERROR: Failed to deploy k3s cluster; see logs."
+  exit 1
+fi

@@ -31,15 +31,24 @@
         path: /etc/rancher/k3s/registries.yaml
         block: |
           mirrors:
-            docker.io:
+            "10.0.2.2:5000":
               endpoint:
                 - "http://10.0.2.2:5000"
 
     - name: Configure insecure regsitries for containerd
-      blockinfile:
-        path: /etc/docker/daemon.json
-        block: |
-          { "insecure-registries": [ "10.0.2.2:5000" ] }
+      block:
+        - name: Create the daemon file
+          blockinfile:
+            path: /etc/docker/daemon.json
+            marker: ""
+            block: |
+              { "insecure-registries": [ "10.0.2.2:5000" ] }
+
+        - name: Remove blank lines
+          lineinfile:
+            path: /etc/docker/daemon.json
+            state: absent
+            regexp: '^$'
 
     - name: Install Rancher k3s
       shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=eth1" K3S_TOKEN={{ k3s_token }} sh -
@@ -101,16 +110,24 @@
         path: /etc/rancher/k3s/registries.yaml
         block: |
           mirrors:
-            docker.io:
+            "10.0.2.2:5000":
               endpoint:
                 - "http://10.0.2.2:5000"
 
     - name: Configure insecure regsitries for containerd
-      blockinfile:
-        path: /etc/docker/daemon.json
-        block: |
-          { "insecure-registries": [ "10.0.2.2:5000" ] }
+      block:
+        - name: Create the daemon file
+          blockinfile:
+            path: /etc/docker/daemon.json
+            marker: ""
+            block: |
+              { "insecure-registries": [ "10.0.2.2:5000" ] }
 
+        - name: Remove blank lines
+          lineinfile:
+            path: /etc/docker/daemon.json
+            state: absent
+            regexp: '^$'
 
     - name: Install k3s as worker
       shell: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-ip={{ ip_address }} --flannel-iface=eth1" K3S_URL=https://192.168.50.2:6443 K3S_TOKEN={{ k3s_token }} sh -
@@ -155,14 +172,21 @@
     - name: Add docker as service
       shell: "rc-update add docker boot"
 
-    - name: Start docker daemon
-      shell: "service docker start"
-
     - name: Reboot
       shell: /sbin/reboot
 
     - name: "Wait for machine"
       local_action: wait_for host={{ ip_address }} port=22
+
+    - name: Start docker daemon
+      shell: "service docker start"
+      retries: 5
+      delay: 2
+
+    - name: Confirm Docker available
+      shell: "docker run --rm hello-world"
+      retries: 5
+      delay: 2
 
     - name: Check for instances of registry
       shell: "sudo docker ps | grep -q registry"
