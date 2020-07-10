@@ -22,7 +22,7 @@ services:
     tty: true # colores!
     privileged: true
     build:
-      dockerfile: ansible.Dockerfile
+      dockerfile: infra/azure/ansible.Dockerfile
       context: .
     environment:
       ANSIBLE_RETRY_FILES_ENABLED: 0
