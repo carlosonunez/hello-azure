@@ -18,23 +18,23 @@ services:
   python:
     build:
       context: ./hello_azure_app
-  ansible-with-systemd:
+  ansible-packer-systemd:
     tty: true # colores!
     privileged: true
     build:
       dockerfile: infra/azure/ansible.Dockerfile
       context: .
+      args:
+        APP_DIR: ./hello_azure_app
+        INFRA_DIR: ./infra/azure
     environment:
       ANSIBLE_RETRY_FILES_ENABLED: 0
       ANSIBLE_STDOUT_CALLBACK: debug
       ANSIBLE_HOST_KEY_CHECKING: "false"
     volumes:
-      - $PWD:/app:ro,cached # Needed so that we don't have to copy the app into the container every time.
-      - $PWD/infra:/workdir:ro,cached
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    working_dir: /workdir
   packer:
-    extends: ansible-with-systemd
+    extends: ansible-packer-systemd
     volumes:
       - $PWD/infra:/workdir:ro,cached
       - $PWD/scripts:/scripts:ro,cached
@@ -203,10 +203,10 @@ services:
     depends_on:
       - database
       - blobstore
-    extends: ansible-with-systemd
+    extends: ansible-packer-systemd
     env_file: .env.test
   ansible-test-databases:
-    extends: ansible-with-systemd
+    extends: ansible-packer-systemd
     env_file: .env.test
   lint:
     extends: python
