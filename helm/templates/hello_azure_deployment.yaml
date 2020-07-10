@@ -21,3 +21,7 @@ spec:
           image: {{ .Values.app.imageName }}
           ports:
             - containerPort: 5000
+          command:
+            - python
+          args:
+            - hello_azure.py

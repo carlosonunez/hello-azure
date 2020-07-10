@@ -1,4 +1,6 @@
 FROM ubuntu:19.04
+ARG APP_DIR
+ARG INFRA_DIR
 
 # Install Ansible
 RUN apt-get -y update && \
@@ -35,5 +37,10 @@ RUN apt-get update && apt-get -y install curl unzip python3-pip jq && \
     pip3 install yq
 
 VOLUME [ "/sys/fs/cgroup" ]
+
+RUN mkdir /app
+COPY $APP_DIR /app
+COPY $INFRA_DIR /infra
+WORKDIR /infra
 
 ENTRYPOINT [ "/sbin/init" ]

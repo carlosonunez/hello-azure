@@ -3,6 +3,10 @@ PERSISTENCE_SERVICES="blobstore database graf_database prom_database graf_cache"
 MONITORING_SERVICES="grafana prometheus"
 INIT_SERVICES="init-database init-blobstore"
 
+copy_version_file_into_app() {
+  cp VERSION ./hello_azure_app
+}
+
 get_exposed_port() {
   if ! which yq > /dev/null
   then
@@ -97,9 +101,10 @@ initialize_app() {
 }
 
 start_app() {
-  docker-compose up -d hello-azure
+  docker-compose up --build -d hello-azure
 }
 
+copy_version_file_into_app && \
 start_persistence && \
   start_monitoring && \
   initialize_app && \

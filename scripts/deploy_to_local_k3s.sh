@@ -11,7 +11,7 @@ provision_local_k3s_cluster_and_registry() {
 }
 
 build_docker_image() {
-  docker build -t "$DOCKER_IMAGE_NAME" "$TOPLEVEL"
+  docker build -t "$DOCKER_IMAGE_NAME" "$TOPLEVEL/hello_azure_app"
   docker tag "$DOCKER_IMAGE_NAME" "${DOCKER_REGISTRY_LOCATION}/${DOCKER_IMAGE_NAME}"
 }
 
