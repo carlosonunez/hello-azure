@@ -17,10 +17,22 @@ services:
     working_dir: /workdir
   python:
     build:
+      context: ./hello_azure_app
+  ansible-with-systemd:
+    tty: true # colores!
+    privileged: true
+    build:
+      dockerfile: ansible.Dockerfile
       context: .
+    environment:
+      ANSIBLE_RETRY_FILES_ENABLED: 0
+      ANSIBLE_STDOUT_CALLBACK: debug
+      ANSIBLE_HOST_KEY_CHECKING: "false"
     volumes:
-      - $PWD/hello_azure:/app
-      - $PWD/VERSION:/VERSION
+      - $PWD:/app:ro,cached # Needed so that we don't have to copy the app into the container every time.
+      - $PWD/infra:/workdir:ro,cached
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    working_dir: /workdir
   packer:
     extends: ansible-with-systemd
     volumes:
@@ -90,21 +102,6 @@ services:
     command:
       - -c
       - "nc -z grafana 3000"
-  ansible-with-systemd:
-    tty: true # colores!
-    privileged: true
-    build:
-      dockerfile: ansible.Dockerfile
-      context: .
-    environment:
-      ANSIBLE_RETRY_FILES_ENABLED: 0
-      ANSIBLE_STDOUT_CALLBACK: debug
-      ANSIBLE_HOST_KEY_CHECKING: "false"
-    volumes:
-      - $PWD:/app:ro,cached # Needed so that we don't have to copy the app into the container every time.
-      - $PWD/infra:/workdir:ro,cached
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    working_dir: /workdir
   terraform:
     build:
       dockerfile: terraform.Dockerfile
