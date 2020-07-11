@@ -1,0 +1,9 @@
+apiVersion: v1
+name: azurite
+home: https://github.com/Azure/azurite
+version: 3.8.0
+appVersion: 3.8.0
+description: A local instance of Azure Blob Storage for local development.
+maintainers:
+  - name: Carlos Nunez
+    email: dev@carlosnunez.me

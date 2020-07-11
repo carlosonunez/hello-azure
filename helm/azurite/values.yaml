@@ -1,0 +1,10 @@
+azurite_port: 10000
+azurite_public_port: 10000
+azurite_arguments:
+  - azurite-blob
+  - -d
+  - debug.log
+  - --blobHost
+  - 0.0.0.0
+  - --blobPort
+  - 10000
