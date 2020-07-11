@@ -20,7 +20,7 @@ push_into_private_registry() {
 }
 
 deploy_helm_chart() {
-  helm --kubeconfig=/tmp/k3s-kubeconfig install "$HELM_CHART_NAME" "${TOPLEVEL}/helm"
+  helm --kubeconfig=/tmp/k3s-kubeconfig install "$HELM_CHART_NAME" "${TOPLEVEL}/helm/hello_azure_app"
 }
 
 if ! (provision_local_k3s_cluster_and_registry &&
