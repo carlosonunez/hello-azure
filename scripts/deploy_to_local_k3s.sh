@@ -19,6 +19,9 @@ push_into_private_registry() {
   docker push "${DOCKER_REGISTRY_LOCATION}/${DOCKER_IMAGE_NAME}"
 }
 
+add_stable_helm_repository() {
+  helm --kubeconfig=/tmp/k3s-kubeconfig repo add stable https://kubernetes-charts.storage.googleapis.com
+
 copy_environment_file_into_helm_chart() {
   # This file should be gitignored; confirm with `git status` to ensure
   # that this is the case.
@@ -26,8 +29,8 @@ copy_environment_file_into_helm_chart() {
 }
 
 deploy_helm_chart() {
+  helm --kubeconfig=/tmp/k3s-kubeconfig dependency update &&
   helm --kubeconfig=/tmp/k3s-kubeconfig install \
-    --set environment_file=".env.test" \
     "$HELM_CHART_NAME" \
     "${TOPLEVEL}/helm/hello-azure"
 }
@@ -35,6 +38,7 @@ deploy_helm_chart() {
 if ! (provision_local_k3s_cluster_and_registry &&
   build_docker_image &&
   push_into_private_registry &&
+  add_stable_helm_repository &&
   copy_environment_file_into_helm_chart &&
   deploy_helm_chart)
 then

@@ -1,0 +1,9 @@
+dependencies:
+- name: azurite
+  repository: file://../azurite
+  version: 3.8.0
+- name: postgresql
+  repository: https://kubernetes-charts.storage.googleapis.com
+  version: 8.6.4
+digest: sha256:8cfe782185546e8ff3277f8317a9d61ff92c8085115c714509601824795b208f
+generated: "2020-07-11T09:07:10.794468-05:00"
