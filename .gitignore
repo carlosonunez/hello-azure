@@ -12,4 +12,5 @@ infra/k3s/ssh_key
 infra/k3s/ssh_key.pub
 *.retry
 hello_azure_app/VERSION
-helm/*/environment_file
+environment_file
+charts/
