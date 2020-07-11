@@ -11,3 +11,5 @@ dependencies:
   - name: local-blobstore
     version: 0.0.1
     repository: "file:///../azurite"
+    tags:
+      - test
