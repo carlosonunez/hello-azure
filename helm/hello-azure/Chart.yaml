@@ -8,8 +8,13 @@ maintainers:
   - name: Carlos Nunez
     email: dev@carlosnunez.me
 dependencies:
-  - name: local-blobstore
-    version: 0.0.1
-    repository: "file:///../azurite"
+  - name: azurite
+    version: "3.8.0"
+    repository: "file://../azurite"
+    tags:
+      - test
+  - name: postgresql
+    version: ^8
+    repository: "@stable"
     tags:
       - test

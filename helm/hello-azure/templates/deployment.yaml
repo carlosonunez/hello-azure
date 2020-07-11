@@ -1,23 +1,25 @@
 ---
+{{- $chartName := .Chart.Name }}
+{{- $releaseName := .Release.Name }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}
+  name: {{ $chartName }}
   labels:
-    app: {{ .Chart.Name }}
+    app: {{ $chartName }}
     release: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.app.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}
+      app: {{ $chartName }}
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
+        app: {{ $chartName }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}-webserver
+        - name: {{ $chartName }}-webserver
           image: {{ .Values.app.imageName }}
           ports:
             - containerPort: 5000
@@ -27,9 +29,9 @@ spec:
             - hello_azure.py
           env:
             {{- range $key, $val := .Values.app.environment_secrets }}
-            name: {{ $key | upper }}
-            valueFrom:
-              secretKeyRef:
-                key: {{ $key }}
-                name: {{ .Release.Name }}-secrets
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $releaseName }}-secrets
             {{- end }}
