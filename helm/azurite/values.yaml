@@ -1,7 +1,8 @@
 azurite_port: 10000
 azurite_public_port: 10000
-azurite_arguments:
+azurite_component:
   - azurite-blob
+azurite_arguments:
   - -d
   - debug.log
   - --blobHost
