@@ -28,6 +28,16 @@ spec:
           args:
             - hello_azure.py
           env:
+            - name: LOG_LEVEL
+              value: {{ .Values.app.log_level }}
+            - name: SESSION_DB_HOST
+              value: {{ .Values.app.session_db_host }}
+            - name: SESSION_DB_PORT
+              value: "{{ .Values.app.session_db_port }}"
+            - name: FLASK_HOST
+              value: {{ .Values.app.flask_host }}
+            - name: FLASK_PORT
+              value: "{{ .Values.app.flask_port }}"
             {{- range $key, $val := .Values.app.environment_secrets }}
             - name: {{ $val }}
               valueFrom:

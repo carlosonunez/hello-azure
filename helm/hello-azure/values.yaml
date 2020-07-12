@@ -1,10 +1,18 @@
+nameOverride: database
+postgresqlUsername: see_deploy_script
+postgresqlPassword: see_deploy_script
+postgresqlDatabase: see_deploy_script
 app:
   replicaCount: 1
   imageName: 10.0.2.2:5000/hello-azure
+  session_db_host: database
+  session_db_port: 5432
+  flask_host: 0.0.0.0
+  flask_port: 5432
+  log_level: DEBUG
   environment_secrets:
-    - FLASK_HOST
-    - FLASK_PORT
-    - SESSION_DB_HOST
-    - SESSION_DB_PORT
     - SESSION_DB_USER
     - SESSION_DB_PASSWORD
+    - AZURE_STORAGE_ENDPOINT
+    - AZURE_STORAGE_ACCOUNT_NAME
+    - AZURE_STORAGE_ACCOUNT_KEY
