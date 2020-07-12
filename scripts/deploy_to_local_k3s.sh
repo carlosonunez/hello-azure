@@ -26,11 +26,11 @@ add_stable_helm_repository() {
 copy_environment_file_into_helm_chart() {
   # This file should be gitignored; confirm with `git status` to ensure
   # that this is the case.
-  cp .env.test helm/hello-azure/
+  cp .env.test helm/hello-azure/environment_file
 }
 
 deploy_helm_chart() {
-  helm --kubeconfig=/tmp/k3s-kubeconfig dependency update &&
+  helm --kubeconfig=/tmp/k3s-kubeconfig dependency update "$HELM_CHART_NAME" &&
   helm --kubeconfig=/tmp/k3s-kubeconfig install \
     "$HELM_CHART_NAME" \
     "${TOPLEVEL}/helm/hello-azure"
