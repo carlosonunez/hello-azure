@@ -21,6 +21,7 @@ push_into_private_registry() {
 
 add_stable_helm_repository() {
   helm --kubeconfig=/tmp/k3s-kubeconfig repo add stable https://kubernetes-charts.storage.googleapis.com
+}
 
 copy_environment_file_into_helm_chart() {
   # This file should be gitignored; confirm with `git status` to ensure
