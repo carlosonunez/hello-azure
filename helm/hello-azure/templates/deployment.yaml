@@ -29,9 +29,9 @@ spec:
             - hello_azure.py
           env:
             {{- range $key, $val := .Values.app.environment_secrets }}
-            - name: {{ $key }}
+            - name: {{ $val }}
               valueFrom:
                 secretKeyRef:
-                  key: {{ $key }}
+                  key: {{ $val }}
                   name: {{ $releaseName }}-secrets
             {{- end }}
